@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Regex Tester • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Regex Tester</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Pattern</div>
+          <input id="pat" class="input" placeholder="e.g. (foo)bar" />
+          <div class="small">
+            Flags: <label><input type="checkbox" id="f-i" /> i</label>
+            <label><input type="checkbox" id="f-g" /> g</label>
+            <label><input type="checkbox" id="f-m" /> m</label>
+            <label><input type="checkbox" id="f-s" /> s</label>
+            <label><input type="checkbox" id="f-u" /> u</label>
+          </div>
+          <div class="field">
+            <div class="label">Test String</div>
+            <textarea id="txt" class="code"></textarea>
+          </div>
+          <div class="row"><button class="btn" id="run">Run</button></div>
+        </div>
+        <div class="field">
+          <div class="label">Matches</div>
+          <textarea id="out" class="code" readonly></textarea>
+        </div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const pat = $("#pat"),
+        txt = $("#txt"),
+        out = $("#out"),
+        err = $("#err");
+      function flags() {
+        return ["i", "g", "m", "s", "u"]
+          .filter((f) => $("#f-" + f).checked)
+          .join("");
+      }
+      $("#run").onclick = () => {
+        err.textContent = "";
+        try {
+          const re = new RegExp(pat.value, flags());
+          let m;
+          const a = [];
+          if (re.global) {
+            while ((m = re.exec(txt.value)) !== null) {
+              a.push({ match: m[0], index: m.index, groups: m.slice(1) });
+            }
+          } else {
+            m = re.exec(txt.value);
+            if (m) a.push({ match: m[0], index: m.index, groups: m.slice(1) });
+          }
+          out.value = JSON.stringify(a, null, 2);
+        } catch (e) {
+          err.textContent = "Invalid pattern";
+        }
+      };
+    </script>
+  </body>
+</html>

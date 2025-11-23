@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Timezone Converter • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Timezone Converter</h1>
+      <div class="field">
+        <div class="label">UTC Date/Time</div>
+        <input id="utc" class="input" type="datetime-local" />
+      </div>
+      <div class="two">
+        <div class="field">
+          <div class="label">Timezone A</div>
+          <select id="tzA" class="input"></select>
+          <div class="label">Local time in A</div>
+          <input id="outA" class="input" readonly />
+        </div>
+        <div class="field">
+          <div class="label">Timezone B</div>
+          <select id="tzB" class="input"></select>
+          <div class="label">Local time in B</div>
+          <input id="outB" class="input" readonly />
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn" id="run">Convert</button
+        ><button class="btn ghost" id="now">Now (UTC)</button>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const zones = [
+        "UTC",
+        "Europe/London",
+        "Europe/Berlin",
+        "Europe/Athens",
+        "Africa/Cairo",
+        "Asia/Dubai",
+        "Asia/Kolkata",
+        "Asia/Tokyo",
+        "Australia/Sydney",
+        "America/New_York",
+        "America/Chicago",
+        "America/Denver",
+        "America/Los_Angeles",
+        "America/Sao_Paulo",
+      ];
+      function fill() {
+        for (const z of zones) {
+          const o = document.createElement("option");
+          o.value = z;
+          o.textContent = z;
+          $("#tzA").appendChild(o.cloneNode(true));
+          $("#tzB").appendChild(o);
+        }
+      }
+      function fmtInTZ(date, tz) {
+        return new Intl.DateTimeFormat("en-GB", {
+          timeZone: tz,
+          hour12: false,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        }).format(date);
+      }
+      $("#run").onclick = () => {
+        const d = new Date($("#utc").value);
+        if (isNaN(d)) return;
+        $("#outA").value = fmtInTZ(d, $("#tzA").value);
+        $("#outB").value = fmtInTZ(d, $("#tzB").value);
+      };
+      $("#now").onclick = () => {
+        $("#utc").value = new Date().toISOString().slice(0, 16);
+      };
+      fill();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>bcrypt • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="tool-bcrypt">
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>bcrypt Hash Generator</h1>
+      <div class="field">
+        <div class="label">Password</div>
+        <input id="pw" class="input" type="password" placeholder="password" />
+      </div>
+      <div class="row">
+        <label class="small">Cost</label
+        ><input
+          id="cost"
+          class="input"
+          type="number"
+          value="10"
+          min="4"
+          max="15"
+          style="max-width: 120px"
+        /><button class="btn" id="hash">Hash</button>
+      </div>
+      <div class="field">
+        <div class="label">Hash</div>
+        <textarea id="out" class="code" readonly></textarea>
+        <div class="row"><button class="btn ghost" id="copy">Copy</button></div>
+      </div>
+      <div class="hr"></div>
+      <h2>Compare</h2>
+      <div class="field">
+        <div class="label">Existing Hash</div>
+        <textarea id="hashIn" class="code" placeholder="$2b$10$..."></textarea>
+      </div>
+      <div class="field">
+        <div class="label">Password</div>
+        <input id="pw2" class="input" type="password" />
+      </div>
+      <div class="row"><button class="btn" id="cmp">Compare</button></div>
+      <div class="small" id="msg"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const pw = $("#pw"),
+        cost = $("#cost"),
+        out = $("#out"),
+        msg = $("#msg");
+
+      function clampCost() {
+        let n = parseInt(cost.value, 10);
+        if (isNaN(n)) n = 10;
+        if (n < 4) n = 4;
+        if (n > 15) n = 15;
+        cost.value = String(n);
+        return n;
+      }
+      cost.addEventListener("input", () => {
+        const v = cost.value.replace(/[^0-9]/g, "");
+        if (v !== cost.value) cost.value = v;
+        if (cost.value !== "" && parseInt(cost.value, 10) > 15)
+          cost.value = "15";
+      });
+      cost.addEventListener("change", clampCost);
+      $("#hash").onclick = async () => {
+        try {
+          const c = clampCost();
+          const r = await postJSON("/api/bcrypt/hash", {
+            password: pw.value,
+            cost: c,
+          });
+          out.value = r.hash;
+          msg.textContent = "";
+        } catch (e) {
+          msg.textContent = e.message;
+        }
+      };
+      $("#copy").onclick = () => copyText(out);
+      $("#cmp").onclick = async () => {
+        try {
+          const r = await postJSON("/api/bcrypt/compare", {
+            password: $("#pw2").value,
+            hash: $("#hashIn").value,
+          });
+          toast(r.match ? "Match" : "No match");
+          msg.textContent = "";
+        } catch (e) {
+          msg.textContent = e.message;
+        }
+      };
+    </script>
+  </body>
+</html>

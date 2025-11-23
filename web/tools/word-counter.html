@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Word Counter • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Word Counter</h1>
+      <div class="field">
+        <div class="label">Text</div>
+        <textarea id="txt" class="code"></textarea>
+      </div>
+      <div class="kv">
+        <div>Characters</div>
+        <div id="c"></div>
+        <div>Characters (no spaces)</div>
+        <div id="cns"></div>
+        <div>Words</div>
+        <div id="w"></div>
+        <div>Sentences</div>
+        <div id="s"></div>
+        <div>Reading time</div>
+        <div id="rt"></div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function calc() {
+        const t = $("#txt").value;
+        const chars = t.length;
+        const cns = t.replace(/\s+/g, "").length;
+        const words = (t.trim().match(/\S+/g) || []).length;
+        const sentences = t.split(/[.!?]+/).filter(Boolean).length;
+        const rt = Math.ceil(words / 200);
+        $("#c").textContent = chars;
+        $("#cns").textContent = cns;
+        $("#w").textContent = words;
+        $("#s").textContent = sentences;
+        $("#rt").textContent = rt + " min";
+      }
+      $("#txt").oninput = calc;
+      calc();
+    </script>
+  </body>
+</html>

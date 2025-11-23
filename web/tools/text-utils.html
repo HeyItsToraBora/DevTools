@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Text Utilities • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Text Utilities</h1>
+      <div class="field">
+        <div class="label">Input</div>
+        <textarea id="t" class="code"></textarea>
+      </div>
+      <div class="row">
+        <button class="btn" id="dup">Remove Duplicated Lines</button
+        ><button class="btn" id="sortA">Sort ASC</button
+        ><button class="btn" id="sortD">Sort DESC</button
+        ><button class="btn" id="spaces">Remove Extra Spaces</button>
+      </div>
+      <div class="field" style="margin-top: 12px">
+        <div class="label">Output</div>
+        <textarea id="o" class="code"></textarea>
+        <div class="row"><button class="btn ghost" id="copy">Copy</button></div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const t = $("#t"),
+        o = $("#o");
+      $("#dup").onclick = () => {
+        const s = new Set();
+        const out = [];
+        for (const line of t.value.split("\n")) {
+          if (!s.has(line)) {
+            s.add(line);
+            out.push(line);
+          }
+        }
+        o.value = out.join("\n");
+      };
+      $("#sortA").onclick = () => {
+        o.value = t.value
+          .split("\n")
+          .sort((a, b) => a.localeCompare(b))
+          .join("\n");
+      };
+      $("#sortD").onclick = () => {
+        o.value = t.value
+          .split("\n")
+          .sort((a, b) => b.localeCompare(a))
+          .join("\n");
+      };
+      $("#spaces").onclick = () => {
+        o.value = t.value
+          .replace(/[\t ]+/g, " ")
+          .replace(/\s*\n\s*/g, "\n")
+          .trim();
+      };
+      $("#copy").onclick = () => copyText(o);
+    </script>
+  </body>
+</html>

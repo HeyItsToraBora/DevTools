@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Base Converter 2↔10↔16 • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Base Converter (2 ↔ 10 ↔ 16)</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Binary</div>
+          <input id="b" class="input" />
+        </div>
+        <div class="field">
+          <div class="label">Decimal</div>
+          <input id="d" class="input" />
+        </div>
+        <div class="field">
+          <div class="label">Hex</div>
+          <input id="h" class="input" />
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn" id="fromB">From Binary</button
+        ><button class="btn" id="fromD">From Decimal</button
+        ><button class="btn" id="fromH">From Hex</button>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      $("#fromB").onclick = () => {
+        const n = parseInt($("#b").value.replace(/\s+/g, ""), 2);
+        if (isNaN(n)) return;
+        $("#d").value = String(n);
+        $("#h").value = n.toString(16);
+      };
+      $("#fromD").onclick = () => {
+        const n = parseInt($("#d").value, 10);
+        if (isNaN(n)) return;
+        $("#b").value = n.toString(2);
+        $("#h").value = n.toString(16);
+      };
+      $("#fromH").onclick = () => {
+        const n = parseInt($("#h").value.replace(/\s+/g, ""), 16);
+        if (isNaN(n)) return;
+        $("#d").value = String(n);
+        $("#b").value = n.toString(2);
+      };
+    </script>
+  </body>
+</html>

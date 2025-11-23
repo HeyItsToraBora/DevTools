@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Base32 Converter • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Base32 ⇆ Text</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Text</div>
+          <textarea id="txt" class="code"></textarea>
+          <div class="row"><button class="btn" id="enc">Encode</button></div>
+        </div>
+        <div class="field">
+          <div class="label">Base32</div>
+          <textarea id="b32" class="code"></textarea>
+          <div class="row"><button class="btn" id="dec">Decode</button></div>
+        </div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      // RFC4648 base32
+      const ALPH = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+      function toBase32(str) {
+        const bytes = new TextEncoder().encode(str);
+        let bits = "",
+          out = "";
+        for (const b of bytes) {
+          bits += b.toString(2).padStart(8, "0");
+        }
+        for (let i = 0; i < bits.length; i += 5) {
+          const chunk = bits.slice(i, i + 5);
+          if (chunk.length < 5) bits += "0".repeat(5 - chunk.length);
+          out += ALPH[parseInt(chunk.padEnd(5, "0"), 2)];
+        }
+        const pad = (8 - Math.ceil((bytes.length * 8) / 40) * 8) % 8;
+        return out + "".padEnd(pad, "=");
+      }
+
+      function fromBase32(b32) {
+        let s = b32.toUpperCase().replace(/=+$/, "").replace(/\s+/g, "");
+        let bits = "";
+        for (const c of s) {
+          const idx = ALPH.indexOf(c);
+          if (idx < 0) throw new Error("invalid");
+          bits += idx.toString(2).padStart(5, "0");
+        }
+        const bytes = [];
+        for (let i = 0; i + 8 <= bits.length; i += 8) {
+          bytes.push(parseInt(bits.slice(i, i + 8), 2));
+        }
+        return new TextDecoder().decode(new Uint8Array(bytes));
+      }
+      const t = $("#txt"),
+        b = $("#b32"),
+        err = $("#err");
+      $("#enc").onclick = () => {
+        try {
+          b.value = toBase32(t.value);
+          err.textContent = "";
+        } catch (e) {
+          err.textContent = e.message;
+        }
+      };
+      $("#dec").onclick = () => {
+        try {
+          t.value = fromBase32(b.value);
+          err.textContent = "";
+        } catch (e) {
+          err.textContent = "Invalid base32";
+        }
+      };
+    </script>
+  </body>
+</html>

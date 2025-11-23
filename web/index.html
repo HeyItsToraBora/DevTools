@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DevTools</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      <div class="searchbar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/></svg><input id="search" placeholder="Search tools..." /></div>
+    </div>
+    <div class="hero">
+      <h1>All-in-one developer toolbox</h1>
+      <p>Fast, privacy-friendly utilities. Black + soft blue theme. No tracking.</p>
+    </div>
+
+    <div class="section">
+      <h2>Security & Crypto</h2>
+      <div class="grid">
+        <a class="card" href="/tools/jwt.html" data-tags="jwt token sign verify decode hs256"><div class="badge">JWT</div><div class="title">JWT Decoder & Signer</div><div class="desc">Decode, sign HS256, verify</div></a>
+        <a class="card" href="/tools/jwt-snippets.html" data-tags="jwt auth snippets code curl fetch axios requests go java c# php ruby powershell"><div class="badge">JWT</div><div class="title">JWT Auth Snippets</div><div class="desc">Headers in many languages</div></a>
+        <a class="card" href="/tools/hmac.html" data-tags="hmac sha256 sha512"><div class="badge">HMAC</div><div class="title">HMAC Generator</div><div class="desc">SHA-256 / SHA-512</div></a>
+        <a class="card" href="/tools/hash.html" data-tags="hash sha1 sha256 sha512 digest"><div class="badge">HASH</div><div class="title">Hash Generator</div><div class="desc">SHA-1 / 256 / 512</div></a>
+        <a class="card" href="/tools/aes.html" data-tags="aes gcm encrypt decrypt"><div class="badge">AES</div><div class="title">AES Encrypt/Decrypt</div><div class="desc">AES-GCM</div></a>
+        <a class="card" href="/tools/rsa.html" data-tags="rsa key generator pem"><div class="badge">RSA</div><div class="title">RSA Key Generator</div><div class="desc">2048/4096 PEM</div></a>
+        <a class="card" href="/tools/certificate.html" data-tags="certificate pem csr x509 decode"><div class="badge">X509</div><div class="title">Certificate Decoder</div><div class="desc">PEM/CSR</div></a>
+        <a class="card" href="/tools/bcrypt.html" data-tags="bcrypt hash compare"><div class="badge">BCRYPT</div><div class="title">bcrypt Hash Generator</div><div class="desc">Hash / Compare</div></a>
+        <a class="card" href="/tools/simple-encrypt.html" data-tags="text encrypt decrypt aes passphrase"><div class="badge">TEXT</div><div class="title">Text Encrypt/Decrypt</div><div class="desc">Passphrase AES-GCM</div></a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Encoding & Converters</h2>
+      <div class="grid">
+        <a class="card" href="/tools/base64.html" data-tags="base64 text decode encode"><div class="badge">BASE64</div><div class="title">Base64 ⇆ Text</div><div class="desc">Unicode-safe</div></a>
+        <a class="card" href="/tools/base32.html" data-tags="base32"><div class="badge">BASE32</div><div class="title">Base32 ⇆ Text</div><div class="desc">RFC 4648</div></a>
+        <a class="card" href="/tools/url.html" data-tags="url encode decode"><div class="badge">URL</div><div class="title">URL Encoder/Decoder</div><div class="desc">encodeURIComponent</div></a>
+        <a class="card" href="/tools/ascii-binary-hex.html" data-tags="ascii binary hex"><div class="badge">ASCII</div><div class="title">ASCII ⇆ Binary ⇆ Hex</div><div class="desc">Bidirectional</div></a>
+        <a class="card" href="/tools/base-converter.html" data-tags="base 2 10 16"><div class="badge">BASE</div><div class="title">Base Converter</div><div class="desc">2 ↔ 10 ↔ 16</div></a>
+        <a class="card" href="/tools/csv-json.html" data-tags="csv json convert"><div class="badge">CSV</div><div class="title">CSV ⇆ JSON</div><div class="desc">Quick convert</div></a>
+        <a class="card" href="/tools/csv-merge.html" data-tags="csv merge combine"><div class="badge">CSV</div><div class="title">CSV Merger</div><div class="desc">Combine files</div></a>
+        <a class="card" href="/tools/image-to-base64.html" data-tags="image base64"><div class="badge">IMG</div><div class="title">Image → Base64</div><div class="desc">Client-side</div></a>
+        <a class="card" href="/tools/percentage.html" data-tags="percent"><div class="badge">MATH</div><div class="title">Percentage Calculator</div><div class="desc">Common ops</div></a>
+        <a class="card" href="/tools/timestamp.html" data-tags="timestamp epoch time"><div class="badge">TIME</div><div class="title">Timestamp Converter</div><div class="desc">Epoch ⇆ Date</div></a>
+        <a class="card" href="/tools/date-diff.html" data-tags="date diff"><div class="badge">TIME</div><div class="title">Date Difference</div><div class="desc">ms/sec/min/hr/day</div></a>
+        <a class="card" href="/tools/timezone.html" data-tags="timezone"><div class="badge">TIME</div><div class="title">Timezone Converter</div><div class="desc">UTC → Zones</div></a>
+        <a class="card" href="/tools/unit-converter.html" data-tags="unit convert"><div class="badge">UNITS</div><div class="title">Unit Converter</div><div class="desc">Length/Mass/…</div></a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Text & Formatting</h2>
+      <div class="grid">
+        <a class="card" href="/tools/json.html" data-tags="json format pretty minify"><div class="badge">JSON</div><div class="title">JSON Formatter</div><div class="desc">Pretty / Minify</div></a>
+        <a class="card" href="/tools/regex.html" data-tags="regex tester"><div class="badge">REGEX</div><div class="title">Regex Tester</div><div class="desc">JS RegExp</div></a>
+        <a class="card" href="/tools/lorem.html" data-tags="lorem ipsum"><div class="badge">TEXT</div><div class="title">Lorem Ipsum</div><div class="desc">Words/paragraphs</div></a>
+        <a class="card" href="/tools/word-counter.html" data-tags="word count"><div class="badge">TEXT</div><div class="title">Word Counter</div><div class="desc">Counts & time</div></a>
+        <a class="card" href="/tools/text-utils.html" data-tags="dedupe sort trim"><div class="badge">TEXT</div><div class="title">Text Utilities</div><div class="desc">Dedupe/Sort/Trim</div></a>
+        <a class="card" href="/tools/case-converter.html" data-tags="case sentence title lower upper"><div class="badge">TEXT</div><div class="title">Case Converter</div><div class="desc">Sentence/Title</div></a>
+        <a class="card" href="/tools/obfuscator.html" data-tags="obfuscate rot13 entities"><div class="badge">TEXT</div><div class="title">Text Obfuscator</div><div class="desc">ROT13/Entities</div></a>
+        <a class="card" href="/tools/diff.html" data-tags="diff"><div class="badge">DIFF</div><div class="title">Text Diff Checker</div><div class="desc">Line diff</div></a>
+        <a class="card" href="/tools/markdown-html.html" data-tags="markdown html"><div class="badge">MD</div><div class="title">Markdown ⇆ HTML</div><div class="desc">Simple parser</div></a>
+        <a class="card" href="/tools/html-escape.html" data-tags="html escape"><div class="badge">HTML</div><div class="title">HTML Escape/Unescape</div><div class="desc">Entities</div></a>
+        <a class="card" href="/tools/password.html" data-tags="password generator"><div class="badge">PWD</div><div class="title">Password Generator</div><div class="desc">Customizable</div></a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>CSS & UI Generators</h2>
+      <div class="grid">
+        <a class="card" href="/tools/palette.html" data-tags="colors palette"><div class="badge">COLOR</div><div class="title">Color Palette</div><div class="desc">Random schemes</div></a>
+        <a class="card" href="/tools/shadow.html" data-tags="shadow"><div class="badge">CSS</div><div class="title">Shadow Generator</div><div class="desc">Box-shadow</div></a>
+        <a class="card" href="/tools/border-radius.html" data-tags="border radius"><div class="badge">CSS</div><div class="title">Border Radius</div><div class="desc">Per-corner</div></a>
+        <a class="card" href="/tools/clip-path.html" data-tags="clip-path"><div class="badge">CSS</div><div class="title">Clip-Path Generator</div><div class="desc">Shapes</div></a>
+        <a class="card" href="/tools/cubic-bezier.html" data-tags="cubic bezier"><div class="badge">CSS</div><div class="title">Cubic Bezier Editor</div><div class="desc">Timing</div></a>
+        <a class="card" href="/tools/gradient-reverse.html" data-tags="gradient"><div class="badge">CSS</div><div class="title">Gradient Reverse</div><div class="desc">linear-gradient</div></a>
+        <a class="card" href="/tools/breakpoints.html" data-tags="responsive"><div class="badge">RESP</div><div class="title">Breakpoints Preview</div><div class="desc">IFrame widths</div></a>
+        <a class="card" href="/tools/meta-tags.html" data-tags="meta tags"><div class="badge">HTML</div><div class="title">HTML Meta Tags</div><div class="desc">OG/Twitter</div></a>
+        <a class="card" href="/tools/tw-merge.html" data-tags="tailwind merge"><div class="badge">TW</div><div class="title">Tailwind Class Merge</div><div class="desc">Heuristic</div></a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Media & Files</h2>
+      <div class="grid">
+        <a class="card" href="/tools/qr.html" data-tags="qr code scan"><div class="badge">QR</div><div class="title">QR Code Gen/Scan</div><div class="desc">Camera scan</div></a>
+        <a class="card" href="/tools/file-metadata.html" data-tags="file metadata"><div class="badge">FILE</div><div class="title">File Metadata</div><div class="desc">Name/Type/SHA-256</div></a>
+        <a class="card" href="/tools/exif.html" data-tags="exif image metadata"><div class="badge">EXIF</div><div class="title">Image Metadata (EXIF)</div><div class="desc">JPEG/TIFF</div></a>
+        <a class="card" href="/tools/pdf-viewer.html" data-tags="pdf viewer"><div class="badge">PDF</div><div class="title">PDF Viewer</div><div class="desc">In-browser</div></a>
+        <a class="card" href="/tools/pdf-text.html" data-tags="pdf text extract"><div class="badge">PDF</div><div class="title">PDF → Text</div><div class="desc">pdf.js</div></a>
+        <a class="card" href="/tools/pptx-viewer.html" data-tags="pptx viewer"><div class="badge">PPTX</div><div class="title">PPTX Viewer</div><div class="desc">Slides text</div></a>
+        <a class="card" href="/tools/markdown-pdf.html" data-tags="markdown pdf"><div class="badge">MD</div><div class="title">Markdown → PDF</div><div class="desc">jsPDF</div></a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Audio</h2>
+      <div class="grid">
+        <a class="card" href="/tools/tts.html" data-tags="tts speech"><div class="badge">TTS</div><div class="title">Text → Speech</div><div class="desc">Browser voices</div></a>
+        <a class="card" href="/tools/stt.html" data-tags="stt speech"><div class="badge">STT</div><div class="title">Speech → Text</div><div class="desc">Web Speech API</div></a>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Code & Dev</h2>
+      <div class="grid">
+        <a class="card" href="/tools/json-go.html" data-tags="json go struct"><div class="badge">GO</div><div class="title">JSON → Go Struct</div><div class="desc">Types</div></a>
+        <a class="card" href="/tools/json-cs.html" data-tags="json c# class"><div class="badge">C#</div><div class="title">JSON → C# Class</div><div class="desc">POCO</div></a>
+        <a class="card" href="/tools/json-java.html" data-tags="json java pojo"><div class="badge">JAVA</div><div class="title">JSON → Java POJO</div><div class="desc">Fields</div></a>
+        <a class="card" href="/tools/json-python.html" data-tags="json python pydantic"><div class="badge">PY</div><div class="title">JSON → Python (pydantic)</div><div class="desc">Models</div></a>
+        <a class="card" href="/tools/code-runner.html" data-tags="code run judge0"><div class="badge">RUN</div><div class="title">Online Code Runner</div><div class="desc">Many languages</div></a>
+        <a class="card" href="/tools/cheatsheet-regex.html" data-tags="regex cheatsheet"><div class="badge">CHEAT</div><div class="title">RegExp Cheatsheet</div><div class="desc">Quick refs</div></a>
+        <a class="card" href="/tools/cheatsheet-git.html" data-tags="git cheatsheet"><div class="badge">CHEAT</div><div class="title">Git Cheatsheet</div><div class="desc">Commands</div></a>
+        <a class="card" href="/tools/cheatsheet-linux.html" data-tags="linux cheatsheet"><div class="badge">CHEAT</div><div class="title">Linux Cheatsheet</div><div class="desc">Commands</div></a>
+        <a class="card" href="/tools/equation-solver.html" data-tags="math equation"><div class="badge">MATH</div><div class="title">Equation Solver</div><div class="desc">Common funcs</div></a>
+        <a class="card" href="/tools/matrix.html" data-tags="matrix"><div class="badge">MATH</div><div class="title">Matrix Calculator</div><div class="desc">2x2 / 3x3</div></a>
+      </div>
+    </div>
+  </div>
+  <div class="toast"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

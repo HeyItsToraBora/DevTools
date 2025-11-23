@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Timestamp Converter • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Timestamp Converter</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Epoch (seconds or ms)</div>
+          <input
+            class="input"
+            id="epoch"
+            placeholder="e.g. 1700000000 or 1700000000000"
+          />
+        </div>
+        <div class="field">
+          <div class="label">ISO Date</div>
+          <input
+            class="input"
+            id="iso"
+            placeholder="e.g. 2025-01-01T00:00:00Z"
+          />
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn" id="toIso">Epoch → ISO</button
+        ><button class="btn" id="toEpoch">ISO → Epoch</button
+        ><button class="btn ghost" id="now">Now</button>
+      </div>
+      <div class="kv" style="margin-top: 12px">
+        <div>Local</div>
+        <div id="local"></div>
+        <div>UTC</div>
+        <div id="utc"></div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const ep = $("#epoch"),
+        iso = $("#iso"),
+        loc = $("#local"),
+        utc = $("#utc");
+      function fmt(d) {
+        return d.toLocaleString();
+      }
+      $("#toIso").onclick = () => {
+        let v = ep.value.trim();
+        if (!v) return;
+        let n = Number(v);
+        if (v.length > 11) n = Math.floor(n / 1000);
+        const d = new Date(n * 1000);
+        iso.value = d.toISOString();
+        loc.textContent = fmt(d);
+        utc.textContent = new Date(d.getTime()).toUTCString();
+      };
+      $("#toEpoch").onclick = () => {
+        let v = iso.value.trim();
+        if (!v) return;
+        const d = new Date(v);
+        if (isNaN(d)) return;
+        ep.value = Math.floor(d.getTime() / 1000);
+        loc.textContent = fmt(d);
+        utc.textContent = d.toUTCString();
+      };
+      $("#now").onclick = () => {
+        const d = new Date();
+        iso.value = d.toISOString();
+        ep.value = Math.floor(d.getTime() / 1000);
+        loc.textContent = fmt(d);
+        utc.textContent = d.toUTCString();
+      };
+    </script>
+  </body>
+</html>

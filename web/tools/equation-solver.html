@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Equation Solver • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Equation Solver</h1>
+      <div class="field">
+        <div class="label">Expression</div>
+        <input
+          id="expr"
+          class="input"
+          placeholder="e.g. sin(pi/4)^2 + cos(pi/4)^2"
+        />
+      </div>
+      <div class="row"><button class="btn" id="solve">Solve</button></div>
+      <div class="kv" style="margin-top: 12px">
+        <div>Result</div>
+        <div id="res"></div>
+        <div>Error</div>
+        <div id="err" class="small"></div>
+      </div>
+      <div class="small">
+        Functions: sin, cos, tan, asin, acos, atan, sqrt, abs, log, exp, pow,
+        floor, ceil, round. Constants: pi, e.
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function safeEval(s) {
+        const map = { pi: Math.PI, e: Math.E };
+        const allowed = [
+          "sin",
+          "cos",
+          "tan",
+          "asin",
+          "acos",
+          "atan",
+          "sqrt",
+          "abs",
+          "log",
+          "exp",
+          "pow",
+          "floor",
+          "ceil",
+          "round",
+          "min",
+          "max",
+        ];
+        const ctx = { ...map };
+        for (const k of allowed) ctx[k] = Math[k];
+        const body = `'use strict';const {${Object.keys(ctx).join(
+          ","
+        )}}=this;return (${s})`;
+        return Function(body).call(ctx);
+      }
+      $("#solve").onclick = () => {
+        $("#err").textContent = "";
+        try {
+          $("#res").textContent = String(safeEval($("#expr").value));
+        } catch (e) {
+          $("#err").textContent = e.message || "Invalid expression";
+        }
+      };
+    </script>
+  </body>
+</html>

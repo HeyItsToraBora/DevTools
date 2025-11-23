@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Linux Commands Cheatsheet • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Linux Commands Cheatsheet</h1>
+      <div class="grid">
+        <div class="card">
+          <div class="badge">List</div>
+          <div class="title code">ls -la</div>
+          <div class="desc">List files</div>
+        </div>
+        <div class="card">
+          <div class="badge">Change dir</div>
+          <div class="title code">cd /path</div>
+          <div class="desc">Go to folder</div>
+        </div>
+        <div class="card">
+          <div class="badge">Copy</div>
+          <div class="title code">cp src dst</div>
+          <div class="desc">Copy file</div>
+        </div>
+        <div class="card">
+          <div class="badge">Move</div>
+          <div class="title code">mv src dst</div>
+          <div class="desc">Move/rename</div>
+        </div>
+        <div class="card">
+          <div class="badge">Remove</div>
+          <div class="title code">rm -rf path</div>
+          <div class="desc">Delete file/dir</div>
+        </div>
+        <div class="card">
+          <div class="badge">Find</div>
+          <div class="title code">find . -name "*.log"</div>
+          <div class="desc">Search files</div>
+        </div>
+        <div class="card">
+          <div class="badge">Grep</div>
+          <div class="title code">grep -R "text" .</div>
+          <div class="desc">Search content</div>
+        </div>
+        <div class="card">
+          <div class="badge">Tar</div>
+          <div class="title code">tar -czf out.tgz dir/</div>
+          <div class="desc">Create archive</div>
+        </div>
+        <div class="card">
+          <div class="badge">Curl</div>
+          <div class="title code">curl -sSL URL</div>
+          <div class="desc">HTTP request</div>
+        </div>
+        <div class="card">
+          <div class="badge">System</div>
+          <div class="title code">top, df -h, du -sh *</div>
+          <div class="desc">Monitor/disk usage</div>
+        </div>
+        <div class="card">
+          <div class="badge">Perms</div>
+          <div class="title code">chmod 755 file</div>
+          <div class="desc">Change mode</div>
+        </div>
+        <div class="card">
+          <div class="badge">SSH</div>
+          <div class="title code">ssh user@host</div>
+          <div class="desc">Connect via SSH</div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>

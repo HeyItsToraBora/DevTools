@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Speech → Text • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Speech → Text</h1>
+      <div class="row">
+        <select id="lang" class="input" style="max-width: 220px">
+          <option value="en-US">English (US)</option>
+          <option value="en-GB">English (UK)</option>
+          <option value="ar-SA">Arabic (Saudi Arabia)</option>
+          <option value="fr-FR">French</option>
+          <option value="de-DE">German</option></select
+        ><button class="btn" id="start">Start</button
+        ><button class="btn ghost" id="stop">Stop</button>
+      </div>
+      <div class="field" style="margin-top: 12px">
+        <div class="label">Transcript</div>
+        <textarea
+          id="out"
+          class="code"
+          placeholder="Transcribed text will appear here..."
+        ></textarea>
+      </div>
+      <div class="small" id="msg"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let rec;
+      $("#start").onclick = () => {
+        if (!Rec) {
+          $("#msg").textContent =
+            "This browser does not support Web Speech API";
+          return;
+        }
+        rec = new Rec();
+        rec.lang = $("#lang").value;
+        rec.continuous = true;
+        rec.interimResults = true;
+        rec.onresult = (e) => {
+          let s = "";
+          for (let i = e.resultIndex; i < e.results.length; i++) {
+            s += e.results[i][0].transcript;
+          }
+          $("#out").value = s;
+        };
+        rec.onerror = (e) => ($("#msg").textContent = "Error: " + e.error);
+        rec.onend = () => toast("Stopped");
+        rec.start();
+        toast("Recording...");
+      };
+      $("#stop").onclick = () => {
+        if (rec) rec.stop();
+      };
+    </script>
+  </body>
+</html>

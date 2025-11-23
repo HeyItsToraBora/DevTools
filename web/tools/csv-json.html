@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CSV ⇆ JSON • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>CSV ⇆ JSON</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">CSV</div>
+          <textarea id="csv" class="code" placeholder="a,b\n1,2"></textarea>
+          <div class="row">
+            <button class="btn" id="toJson">CSV → JSON</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">JSON</div>
+          <textarea
+            id="json"
+            class="code"
+            placeholder='[{"a":"1","b":"2"}]'
+          ></textarea>
+          <div class="row">
+            <button class="btn" id="toCsv">JSON → CSV</button>
+          </div>
+        </div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const c = $("#csv"),
+        j = $("#json"),
+        err = $("#err");
+      function parseCSV(text) {
+        const rows = [];
+        let i = 0,
+          cur = "",
+          inQ = false,
+          row = [];
+        function pushCell() {
+          row.push(cur);
+          cur = "";
+        }
+        for (; i < text.length; i++) {
+          const ch = text[i];
+          if (ch === '"') {
+            if (inQ && text[i + 1] === '"') {
+              cur += '"';
+              i++;
+            } else {
+              inQ = !inQ;
+            }
+          } else if (ch === "," && !inQ) {
+            pushCell();
+          } else if ((ch === "\n" || ch === "\r") && !inQ) {
+            pushCell();
+            rows.push(row);
+            row = [];
+            if (ch === "\r" && text[i + 1] === "\n") i++;
+          } else {
+            cur += ch;
+          }
+        }
+        pushCell();
+        if (row.length) rows.push(row);
+        return rows.filter((r) => r.length && !(r.length === 1 && r[0] === ""));
+      }
+      function rowsToObjects(rows) {
+        if (!rows.length) return [];
+        const headers = rows[0];
+        return rows.slice(1).map((r) => {
+          const o = {};
+          headers.forEach((h, idx) => (o[h] = r[idx] ?? ""));
+          return o;
+        });
+      }
+      function objectsToCSV(arr) {
+        if (!arr.length) return "";
+        const headers = Array.from(new Set(arr.flatMap((o) => Object.keys(o))));
+        const esc = (v) => {
+          const s = String(v ?? "");
+          return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        };
+        const lines = [headers.join(",")];
+        for (const o of arr) {
+          lines.push(headers.map((h) => esc(o[h])).join(","));
+        }
+        return lines.join("\n");
+      }
+      $("#toJson").onclick = () => {
+        err.textContent = "";
+        try {
+          const rows = parseCSV(c.value);
+          j.value = JSON.stringify(rowsToObjects(rows), null, 2);
+        } catch (e) {
+          err.textContent = "Parse error";
+        }
+      };
+      $("#toCsv").onclick = () => {
+        err.textContent = "";
+        try {
+          const arr = JSON.parse(j.value);
+          c.value = objectsToCSV(arr);
+        } catch (e) {
+          err.textContent = "Invalid JSON";
+        }
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RSA Key Generator • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>RSA Key Generator</h1>
+      <div class="row">
+        <select id="bits" class="input" style="max-width: 200px">
+          <option value="2048">2048</option>
+          <option value="3072">3072</option>
+          <option value="4096">4096</option></select
+        ><button class="btn" id="gen">Generate</button>
+      </div>
+      <div class="two" style="margin-top: 12px">
+        <div class="field">
+          <div class="label">Private Key (PEM)</div>
+          <textarea id="priv" class="code" readonly></textarea>
+          <div class="row">
+            <button class="btn ghost" id="copyPriv">Copy</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Public Key (PEM)</div>
+          <textarea id="pub" class="code" readonly></textarea>
+          <div class="row">
+            <button class="btn ghost" id="copyPub">Copy</button>
+          </div>
+        </div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const bits = $("#bits"),
+        priv = $("#priv"),
+        pub = $("#pub"),
+        err = $("#err");
+      $("#gen").onclick = async () => {
+        err.textContent = "";
+        try {
+          const r = await postJSON("/api/rsa/keygen", {
+            bits: Number(bits.value),
+          });
+          priv.value = r.privateKeyPEM;
+          pub.value = r.publicKeyPEM;
+        } catch (e) {
+          err.textContent = e.message;
+        }
+      };
+      $("#copyPriv").onclick = () => copyText(priv);
+      $("#copyPub").onclick = () => copyText(pub);
+    </script>
+  </body>
+</html>

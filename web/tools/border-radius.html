@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Border Radius Generator • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Border Radius Generator</h1>
+      <div class="two">
+        <div>
+          <div class="row">
+            <label class="small">Top-Left</label
+            ><input
+              id="tl"
+              class="input"
+              type="range"
+              min="0"
+              max="100"
+              value="12"
+            />
+          </div>
+          <div class="row">
+            <label class="small">Top-Right</label
+            ><input
+              id="tr"
+              class="input"
+              type="range"
+              min="0"
+              max="100"
+              value="12"
+            />
+          </div>
+          <div class="row">
+            <label class="small">Bottom-Right</label
+            ><input
+              id="br"
+              class="input"
+              type="range"
+              min="0"
+              max="100"
+              value="12"
+            />
+          </div>
+          <div class="row">
+            <label class="small">Bottom-Left</label
+            ><input
+              id="bl"
+              class="input"
+              type="range"
+              min="0"
+              max="100"
+              value="12"
+            />
+          </div>
+          <div class="field">
+            <div class="label">CSS</div>
+            <input id="css" class="input code" readonly />
+          </div>
+        </div>
+        <div>
+          <div class="label">Preview</div>
+          <div
+            id="box"
+            style="
+              width: 260px;
+              height: 160px;
+              background: var(--panel);
+              border: 1px solid var(--border);
+            "
+          ></div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function update() {
+        const tl = $("#tl").value,
+          tr = $("#tr").value,
+          br = $("#br").value,
+          bl = $("#bl").value;
+        const v = `${tl}px ${tr}px ${br}px ${bl}px`;
+        $("#box").style.borderRadius = v;
+        $("#css").value = `border-radius: ${v};`;
+      }
+      ["tl", "tr", "br", "bl"].forEach((id) => ($("#" + id).oninput = update));
+      update();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Case Converter • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Case Converter</h1>
+      <div class="field">
+        <div class="label">Input</div>
+        <textarea id="t" class="code"></textarea>
+      </div>
+      <div class="row">
+        <button class="btn" id="sentence">Sentence Case</button
+        ><button class="btn" id="title">Title Case</button
+        ><button class="btn" id="lower">lowercase</button
+        ><button class="btn" id="upper">UPPERCASE</button>
+      </div>
+      <div class="field" style="margin-top: 12px">
+        <div class="label">Output</div>
+        <textarea id="o" class="code"></textarea>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function sentence(s) {
+        s = s.toLowerCase();
+        return s.replace(/(^\s*\w|[.!?]\s*\w)/g, (m) => m.toUpperCase());
+      }
+      function title(s) {
+        const sn = [
+          "a",
+          "an",
+          "the",
+          "and",
+          "or",
+          "but",
+          "for",
+          "nor",
+          "on",
+          "at",
+          "to",
+          "from",
+          "by",
+          "of",
+          "in",
+        ];
+        return s
+          .toLowerCase()
+          .split(/\s+/)
+          .map((w, i) =>
+            sn.includes(w) && i !== 0
+              ? w
+              : w.charAt(0).toUpperCase() + w.slice(1)
+          )
+          .join(" ");
+      }
+      $("#sentence").onclick = () => {
+        $("#o").value = sentence($("#t").value);
+      };
+      $("#title").onclick = () => {
+        $("#o").value = title($("#t").value);
+      };
+      $("#lower").onclick = () => {
+        $("#o").value = $("#t").value.toLowerCase();
+      };
+      $("#upper").onclick = () => {
+        $("#o").value = $("#t").value.toUpperCase();
+      };
+    </script>
+  </body>
+</html>

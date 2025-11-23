@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JWT Auth Snippets • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>JWT Auth Snippets</h1>
+      <div class="field">
+        <div class="row">
+          <select id="snipLang" class="input" style="max-width: 220px">
+            <option value="curl">cURL</option>
+            <option value="js-fetch">JavaScript (fetch)</option>
+            <option value="axios">Axios (JS/Node)</option>
+            <option value="python">Python (requests)</option>
+            <option value="go">Go (net/http)</option>
+            <option value="java">Java (OkHttp)</option>
+            <option value="csharp">C# (HttpClient)</option>
+            <option value="php">PHP (cURL)</option>
+            <option value="ruby">Ruby (Net::HTTP)</option>
+            <option value="powershell">PowerShell</option>
+          </select>
+          <input
+            id="snipUrl"
+            class="input"
+            placeholder="https://api.example.com/resource"
+            style="flex: 1"
+          />
+        </div>
+        <div class="row">
+          <input
+            id="snipHeaderName"
+            class="input"
+            value="Authorization"
+            style="max-width: 220px"
+          />
+          <input
+            id="snipScheme"
+            class="input"
+            value="Bearer"
+            style="max-width: 220px"
+          />
+          <input id="snipToken" class="input" placeholder="token" />
+        </div>
+        <textarea id="snipCode" class="code" readonly></textarea>
+        <div class="row">
+          <button class="btn ghost" id="snipCopy">Copy</button>
+        </div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const snipLang = document.querySelector("#snipLang");
+      const snipUrl = document.querySelector("#snipUrl");
+      const snipHeaderName = document.querySelector("#snipHeaderName");
+      const snipScheme = document.querySelector("#snipScheme");
+      const snipToken = document.querySelector("#snipToken");
+      const snipCode = document.querySelector("#snipCode");
+      function buildSnippet() {
+        if (!snipCode) return;
+        const lang = snipLang.value;
+        const url = snipUrl.value || "https://api.example.com/resource";
+        const header = snipHeaderName.value || "Authorization";
+        const scheme = (snipScheme.value || "").trim();
+        const token = snipToken.value || "<YOUR_JWT>";
+        const cred = (scheme ? scheme + " " : "") + token;
+        let code = "";
+        switch (lang) {
+          case "curl":
+            code = `curl -H "${header}: ${cred}" "${url}"`;
+            break;
+          case "js-fetch":
+            code = `fetch("${url}",{headers:{"${header}":"${cred}"}}).then(r=>r.json()).then(console.log)`;
+            break;
+          case "axios":
+            code = `import axios from "axios";\naxios.get("${url}",{headers:{"${header}":"${cred}"}}).then(r=>console.log(r.data));`;
+            break;
+          case "python":
+            code = `import requests\nr=requests.get("${url}",headers={"${header}":"${cred}"})\nprint(r.text)`;
+            break;
+          case "go":
+            code = `package main\n\nimport (\n  "fmt"\n  "io"\n  "net/http"\n)\n\nfunc main(){\n  req,_:=http.NewRequest("GET","${url}",nil)\n  req.Header.Set("${header}","${cred}")\n  res,_:=http.DefaultClient.Do(req)\n  defer res.Body.Close()\n  b,_:=io.ReadAll(res.Body)\n  fmt.Println(string(b))\n}`;
+            break;
+          case "java":
+            code = `OkHttpClient client = new OkHttpClient();\nRequest req = new Request.Builder().url("${url}").header("${header}", "${cred}").build();\nResponse res = client.newCall(req).execute();\nSystem.out.println(res.body().string());`;
+            break;
+          case "csharp":
+            code = `using System;\nusing System.Net.Http;\nusing System.Threading.Tasks;\n\nclass Program{\n  static async Task Main(){\n    var client=new HttpClient();\n    var req=new HttpRequestMessage(HttpMethod.Get,"${url}");\n    req.Headers.Add("${header}","${cred}");\n    var res=await client.SendAsync(req);\n    Console.WriteLine(await res.Content.ReadAsStringAsync());\n  }\n}`;
+            break;
+          case "php":
+            code = `<?php\n$ch=curl_init("${url}");\ncurl_setopt($ch,CURLOPT_HTTPHEADER,["${header}: ${cred}"]);\ncurl_setopt($ch,CURLOPT_RETURNTRANSFER,true);\n$resp=curl_exec($ch);\ncurl_close($ch);\necho $resp;`;
+            break;
+          case "ruby":
+            code = `require 'net/http'\nuri = URI("${url}")\nreq = Net::HTTP::Get.new(uri)\nreq["${header}"]="${cred}"\nres = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme=="https") {|h| h.request(req)}\nputs res.body`;
+            break;
+          case "powershell":
+            code = `$headers=@{ "${header}"="${cred}" }\nInvoke-WebRequest -Uri "${url}" -Headers $headers -UseBasicParsing`;
+            break;
+          default:
+            code = "";
+        }
+        snipCode.value = code;
+      }
+      ["change", "input"].forEach((evt) => {
+        snipLang.addEventListener(evt, buildSnippet);
+        snipUrl.addEventListener(evt, buildSnippet);
+        snipHeaderName.addEventListener(evt, buildSnippet);
+        snipScheme.addEventListener(evt, buildSnippet);
+        snipToken.addEventListener(evt, buildSnippet);
+      });
+      const copyBtn = document.querySelector("#snipCopy");
+      if (copyBtn) copyBtn.onclick = () => copyText(snipCode);
+      buildSnippet();
+    </script>
+  </body>
+</html>

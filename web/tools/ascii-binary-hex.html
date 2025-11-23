@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ASCII ⇆ Binary ⇆ Hex • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>ASCII ⇆ Binary ⇆ Hex</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">ASCII</div>
+          <textarea id="ascii" class="code"></textarea>
+          <div class="row">
+            <button class="btn" id="toBin">ASCII → Binary</button
+            ><button class="btn" id="toHex">ASCII → Hex</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Binary / Hex</div>
+          <textarea
+            id="other"
+            class="code"
+            placeholder="Binary or Hex"
+          ></textarea>
+          <div class="row">
+            <button class="btn" id="toAsciiBin">Binary → ASCII</button
+            ><button class="btn" id="toAsciiHex">Hex → ASCII</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const A = $("#ascii"),
+        B = $("#other");
+
+      function asciiToBin(s) {
+        return Array.from(s)
+          .map((c) => c.charCodeAt(0).toString(2).padStart(8, "0"))
+          .join(" ");
+      }
+
+      function asciiToHex(s) {
+        return Array.from(s)
+          .map((c) => c.charCodeAt(0).toString(16).padStart(2, "0"))
+          .join(" ");
+      }
+
+      function binToAscii(s) {
+        return s
+          .trim()
+          .split(/\s+/)
+          .map((b) => String.fromCharCode(parseInt(b, 2)))
+          .join("");
+      }
+
+      function hexToAscii(s) {
+        return (
+          s
+            .replace(/\s+/g, "")
+            .match(/.{1,2}/g)
+            ?.map((h) => String.fromCharCode(parseInt(h, 16)))
+            .join("") || ""
+        );
+      }
+      $("#toBin").onclick = () => {
+        B.value = asciiToBin(A.value);
+      };
+      $("#toHex").onclick = () => {
+        B.value = asciiToHex(A.value);
+      };
+      $("#toAsciiBin").onclick = () => {
+        A.value = binToAscii(B.value);
+      };
+      $("#toAsciiHex").onclick = () => {
+        A.value = hexToAscii(B.value);
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Text Encrypt/Decrypt • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="tool-simple">
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Text Encrypt/Decrypt (AES-GCM)</h1>
+      <div class="field">
+        <div class="label">Passphrase</div>
+        <input id="pass" class="input" type="password" />
+      </div>
+      <div class="two">
+        <div class="field">
+          <div class="label">Plaintext</div>
+          <textarea id="pt" class="code"></textarea>
+          <div class="row"><button class="btn" id="enc">Encrypt</button></div>
+        </div>
+        <div class="field">
+          <div class="label">Ciphertext (base64)</div>
+          <textarea id="ct" class="code"></textarea>
+          <div class="row"><button class="btn" id="dec">Decrypt</button></div>
+        </div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      async function getKey(pw, salt) {
+        const enc = new TextEncoder();
+        const base = await crypto.subtle.importKey(
+          "raw",
+          enc.encode(pw),
+          {
+            name: "PBKDF2",
+          },
+          false,
+          ["deriveKey"]
+        );
+        return crypto.subtle.deriveKey(
+          {
+            name: "PBKDF2",
+            hash: "SHA-256",
+            salt,
+            iterations: 100000,
+          },
+          base,
+          {
+            name: "AES-GCM",
+            length: 256,
+          },
+          false,
+          ["encrypt", "decrypt"]
+        );
+      }
+
+      function toB64(a) {
+        return btoa(String.fromCharCode(...new Uint8Array(a)));
+      }
+
+      function fromB64(s) {
+        return Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+      }
+      $("#enc").onclick = async () => {
+        try {
+          const enc = new TextEncoder();
+          const salt = crypto.getRandomValues(new Uint8Array(16));
+          const iv = crypto.getRandomValues(new Uint8Array(12));
+          const key = await getKey($("#pass").value, salt);
+          const ct = await crypto.subtle.encrypt(
+            {
+              name: "AES-GCM",
+              iv,
+            },
+            key,
+            enc.encode($("#pt").value)
+          );
+          $("#ct").value = toB64(salt) + ":" + toB64(iv) + ":" + toB64(ct);
+        } catch (e) {
+          $("#err").textContent = "Encrypt failed";
+        }
+      };
+      $("#dec").onclick = async () => {
+        try {
+          const [sb, nb, cb] = $("#ct").value.split(":");
+          const salt = fromB64(sb),
+            iv = fromB64(nb),
+            ct = fromB64(cb);
+          const key = await getKey($("#pass").value, salt);
+          const pt = await crypto.subtle.decrypt(
+            {
+              name: "AES-GCM",
+              iv,
+            },
+            key,
+            ct
+          );
+          $("#pt").value = new TextDecoder().decode(pt);
+          $("#err").textContent = "";
+        } catch (e) {
+          $("#err").textContent = "Decrypt failed";
+        }
+      };
+    </script>
+  </body>
+</html>

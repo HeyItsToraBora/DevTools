@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hash Generator • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Hash Generator</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Input</div>
+          <textarea id="input" class="code"></textarea>
+        </div>
+        <div class="field">
+          <div class="label">Output</div>
+          <textarea id="out" class="code" readonly></textarea>
+        </div>
+      </div>
+      <div class="row">
+        <select id="alg" class="input" style="max-width: 200px">
+          <option>sha256</option>
+          <option>sha512</option>
+          <option>sha1</option>
+        </select>
+        <select id="fmt" class="input" style="max-width: 160px">
+          <option>hex</option>
+          <option>base64</option>
+        </select>
+        <button class="btn" id="run">Hash</button>
+        <button class="btn ghost" id="copy">Copy</button>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const i = $("#input"),
+        o = $("#out"),
+        alg = $("#alg"),
+        fmt = $("#fmt"),
+        err = $("#err");
+      $("#run").onclick = async () => {
+        err.textContent = "";
+        try {
+          const r = await postJSON("/api/hash", {
+            algorithm: alg.value,
+            input: i.value,
+            output: fmt.value,
+          });
+          o.value = r.digest;
+        } catch (e) {
+          err.textContent = e.message;
+        }
+      };
+      const copyBtn = $("#copy");
+      copyBtn.onclick = () => {
+        copyText(o);
+        copyBtn.classList.remove("pulse");
+        void copyBtn.offsetWidth;
+        copyBtn.classList.add("pulse");
+      };
+    </script>
+  </body>
+</html>

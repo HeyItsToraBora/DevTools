@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Responsive Breakpoints Preview • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Responsive Breakpoints Preview</h1>
+      <div class="row">
+        <input
+          id="url"
+          class="input"
+          placeholder="https://example.com"
+          style="max-width: 420px"
+        /><button class="btn" id="load">Load</button>
+      </div>
+      <div class="row" style="margin-top: 8px">
+        <button class="btn" data-w="375">Mobile (375)</button
+        ><button class="btn" data-w="640">sm (640)</button
+        ><button class="btn" data-w="768">md (768)</button
+        ><button class="btn" data-w="1024">lg (1024)</button
+        ><button class="btn" data-w="1280">xl (1280)</button
+        ><button class="btn" data-w="1536">2xl (1536)</button>
+      </div>
+      <div class="field" style="margin-top: 12px">
+        <div class="label">Preview</div>
+        <div
+          style="
+            overflow: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+          "
+        >
+          <iframe
+            id="frame"
+            style="width: 100%; height: 600px; border: 0; background: #fff"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const f = $("#frame");
+      $("#load").onclick = () => {
+        f.src = $("#url").value;
+      };
+      document.querySelectorAll("[data-w]").forEach(
+        (b) =>
+          (b.onclick = () => {
+            f.style.width = b.dataset.w + "px";
+          })
+      );
+    </script>
+  </body>
+</html>

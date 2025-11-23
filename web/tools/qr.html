@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QR Code • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>QR Code Generator + Scanner</h1>
+      <div class="two">
+        <div>
+          <div class="field">
+            <div class="label">Text</div>
+            <textarea id="txt" class="code"></textarea>
+          </div>
+          <div class="row"><button class="btn" id="gen">Generate</button></div>
+          <div class="field">
+            <div class="label">QR</div>
+            <img
+              id="qr"
+              style="
+                background: #fff;
+                padding: 8px;
+                border-radius: 8px;
+                max-width: 256px;
+              "
+            />
+          </div>
+        </div>
+        <div>
+          <div class="field">
+            <div class="label">Scan (camera)</div>
+            <video
+              id="vid"
+              autoplay
+              playsinline
+              style="
+                max-width: 100%;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+              "
+            ></video>
+          </div>
+          <div class="row">
+            <button class="btn" id="start">Start</button
+            ><button class="btn ghost" id="stop">Stop</button>
+          </div>
+          <div class="field">
+            <div class="label">Result</div>
+            <input id="res" class="input" readonly />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      // Generator via public API fallback
+      $("#gen").onclick = () => {
+        const t = encodeURIComponent($("#txt").value);
+        $(
+          "#qr"
+        ).src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${t}`;
+      };
+      // Scanner with BarcodeDetector if available
+      let stream, detector;
+      async function tick() {
+        if (!detector || !stream) return;
+        const v = $("#vid");
+        try {
+          const codes = await detector.detect(v);
+          if (codes.length) {
+            $("#res").value = codes[0].rawValue;
+            toast("QR detected");
+          }
+        } catch {}
+        requestAnimationFrame(tick);
+      }
+      $("#start").onclick = async () => {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment" },
+          });
+          $("#vid").srcObject = stream;
+          if ("BarcodeDetector" in window) {
+            detector = new BarcodeDetector({ formats: ["qr_code"] });
+            tick();
+          } else {
+            toast("BarcodeDetector not supported");
+          }
+        } catch (e) {
+          toast("Camera error");
+        }
+      };
+      $("#stop").onclick = () => {
+        if (stream) stream.getTracks().forEach((t) => t.stop());
+        stream = null;
+      };
+    </script>
+  </body>
+</html>

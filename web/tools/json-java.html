@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JSON → Java POJO • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>JSON → Java POJO</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">JSON</div>
+          <textarea
+            id="json"
+            class="code"
+            placeholder='{"id":1,"name":"Alice","tags":["a","b"],"meta":{"ok":true}}'
+          ></textarea>
+          <div class="row">
+            <input
+              id="name"
+              class="input"
+              placeholder="Root class (default: Root)"
+              style="max-width: 280px"
+            /><button class="btn" id="gen">Generate</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Java</div>
+          <textarea id="out" class="code" style="min-height: 340px"></textarea>
+          <div class="row">
+            <button class="btn ghost" id="copy">Copy</button>
+          </div>
+        </div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function T(s) {
+        return s
+          .replace(/(^|_|-|\s)+(\w)/g, (_, a, b) => b.toUpperCase())
+          .replace(/[^A-Za-z0-9]/g, "");
+      }
+      function jType(v, name, defs) {
+        if (v === null) return "Object";
+        if (Array.isArray(v)) {
+          if (v.length === 0) return "List<Object>";
+          const ts = [...new Set(v.map((x) => jType(x, name, defs)))];
+          return ts.length === 1 ? `List<${ts[0]}>` : "List<Object>";
+        }
+        switch (typeof v) {
+          case "string":
+            return "String";
+          case "number":
+            return Number.isInteger(v) ? "Integer" : "Double";
+          case "boolean":
+            return "Boolean";
+          case "object":
+            return makeClass(v, name, defs);
+          default:
+            return "Object";
+        }
+      }
+      function makeClass(obj, name, defs) {
+        const className = T(name || "Root");
+        if (defs[className]) return className;
+        const fields = Object.entries(obj).map(([k, val]) => {
+          const prop = T(k);
+          const t = jType(val, prop, defs);
+          return { name: prop, type: t, json: k };
+        });
+        defs[className] = fields;
+        return className;
+      }
+      function render(defs, root, rootName) {
+        let s = "import java.util.*;\n\n";
+        s += `public class ${rootName} extends ${root} { }\n\n`;
+        for (const [name, fields] of Object.entries(defs)) {
+          s += `public class ${name} {\n`;
+          for (const f of fields) {
+            s += `  public ${f.type} ${f.name}; // json: ${f.json}\n`;
+          }
+          s += "}\n\n";
+        }
+        return s;
+      }
+      $("#gen").onclick = () => {
+        try {
+          const obj = JSON.parse($("#json").value);
+          const rootName = T($("#name").value || "Root");
+          const defs = {};
+          const root = jType(obj, rootName, defs);
+          $("#out").value = render(defs, root, rootName);
+          $("#err").textContent = "";
+        } catch (e) {
+          $("#err").textContent = "Invalid JSON";
+        }
+      };
+      $("#copy").onclick = () => copyText($("#out"));
+    </script>
+  </body>
+</html>

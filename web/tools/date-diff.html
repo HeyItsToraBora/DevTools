@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Date Difference Calculator • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Date Difference Calculator</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Start</div>
+          <input id="a" class="input" type="datetime-local" />
+        </div>
+        <div class="field">
+          <div class="label">End</div>
+          <input id="b" class="input" type="datetime-local" />
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn" id="run">Compute</button
+        ><button class="btn ghost" id="now">Now → End</button>
+      </div>
+      <div class="kv" style="margin-top: 12px">
+        <div>Milliseconds</div>
+        <div id="ms"></div>
+        <div>Seconds</div>
+        <div id="s"></div>
+        <div>Minutes</div>
+        <div id="m"></div>
+        <div>Hours</div>
+        <div id="h"></div>
+        <div>Days</div>
+        <div id="d"></div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function calc() {
+        const A = new Date($("#a").value),
+          B = new Date($("#b").value);
+        if (isNaN(A) || isNaN(B)) return;
+        let ms = B - A;
+        const sign = ms < 0 ? -1 : 1;
+        ms = Math.abs(ms);
+        $("#ms").textContent = sign * ms;
+        $("#s").textContent = sign * Math.floor(ms / 1000);
+        $("#m").textContent = sign * Math.floor(ms / 60000);
+        $("#h").textContent = sign * Math.floor(ms / 3600000);
+        $("#d").textContent = sign * Math.floor(ms / 86400000);
+      }
+      $("#run").onclick = calc;
+      $("#now").onclick = () => {
+        $("#a").value = new Date().toISOString().slice(0, 16);
+        calc();
+      };
+    </script>
+  </body>
+</html>

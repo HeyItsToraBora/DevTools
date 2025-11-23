@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RegExp Cheatsheet • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>RegExp Cheatsheet</h1>
+      <div class="grid">
+        <div class="card">
+          <div class="badge">Anchors</div>
+          <div class="desc code">
+            ^ start, $ end, \b word boundary, \B non-boundary
+          </div>
+        </div>
+        <div class="card">
+          <div class="badge">Common</div>
+          <div class="desc code">
+            . any, | or, (...) capture, (?:...) non-capture, (?=...) lookahead,
+            (?!...) neg. lookahead
+          </div>
+        </div>
+        <div class="card">
+          <div class="badge">Classes</div>
+          <div class="desc code">
+            \d digit, \D non-digit, \w word, \W non-word, \s space, \S non-space
+          </div>
+        </div>
+        <div class="card">
+          <div class="badge">Quantifiers</div>
+          <div class="desc code">
+            * 0+, + 1+, ? 0/1, {n}, {n,}, {n,m} (append ? for lazy)
+          </div>
+        </div>
+        <div class="card">
+          <div class="badge">Email</div>
+          <div class="desc code">^[^\s@]+@[^\s@]+\.[^\s@]+$</div>
+        </div>
+        <div class="card">
+          <div class="badge">URL</div>
+          <div class="desc code">
+            ^https?:\/\/[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#\[\]@!$&'()*+,;=.]+$
+          </div>
+        </div>
+        <div class="card">
+          <div class="badge">IPv4</div>
+          <div class="desc code">
+            ^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){3}$
+          </div>
+        </div>
+        <div class="card">
+          <div class="badge">Hex color</div>
+          <div class="desc code">^#(?:[0-9a-fA-F]{3}){1,2}$</div>
+        </div>
+        <div class="card">
+          <div class="badge">ISO Date</div>
+          <div class="desc code">
+            ^\d{4}-\d{2}-\d{2}(?:[T\s]\d{2}:\d{2}(?::\d{2})?Z?)?$
+          </div>
+        </div>
+        <div class="card">
+          <div class="badge">Slug</div>
+          <div class="desc code">^[a-z0-9]+(?:-[a-z0-9]+)*$</div>
+        </div>
+        <div class="card">
+          <div class="badge">UUID</div>
+          <div class="desc code">
+            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$
+          </div>
+        </div>
+        <div class="card">
+          <div class="badge">Password (8+)</div>
+          <div class="desc code">^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$</div>
+        </div>
+      </div>
+      <p class="small" style="margin-top: 12px">
+        Tip: Use our <a href="/tools/regex.html">Regex Tester</a> to try these.
+      </p>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>

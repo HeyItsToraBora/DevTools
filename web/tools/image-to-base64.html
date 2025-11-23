@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Image → Base64 • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Image → Base64</h1>
+      <div class="field">
+        <input id="file" class="input" type="file" accept="image/*" />
+      </div>
+      <div class="two">
+        <div class="field">
+          <div class="label">Preview</div>
+          <img
+            id="img"
+            style="
+              max-width: 100%;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+            "
+          />
+        </div>
+        <div class="field">
+          <div class="label">Base64</div>
+          <textarea id="b64" class="code"></textarea>
+          <div class="row">
+            <button class="btn ghost" id="copy">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      $("#file").onchange = (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = () => {
+          $("#img").src = r.result;
+          $("#b64").value = String(r.result).split(",")[1] || "";
+        };
+        r.readAsDataURL(f);
+      };
+      $("#copy").onclick = () => copyText($("#b64"));
+    </script>
+  </body>
+</html>

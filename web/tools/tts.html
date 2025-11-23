@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Text → Speech (TTS) • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Text → Speech (TTS)</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Text</div>
+          <textarea
+            id="txt"
+            class="code"
+            placeholder="Type something..."
+          ></textarea>
+        </div>
+        <div class="field">
+          <div class="label">Voice</div>
+          <select id="voice" class="input"></select>
+          <div class="row">
+            <label class="small">Rate</label
+            ><input
+              id="rate"
+              class="input"
+              type="range"
+              min="0.5"
+              max="2"
+              step="0.1"
+              value="1"
+            /><label class="small">Pitch</label
+            ><input
+              id="pitch"
+              class="input"
+              type="range"
+              min="0"
+              max="2"
+              step="0.1"
+              value="1"
+            />
+          </div>
+          <div class="row">
+            <button class="btn" id="speak">Speak</button
+            ><button class="btn ghost" id="stop">Stop</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      let voices = [];
+      function loadVoices() {
+        voices = window.speechSynthesis.getVoices();
+        const v = $("#voice");
+        v.innerHTML = "";
+        voices.forEach((vc, i) => {
+          const o = document.createElement("option");
+          o.value = String(i);
+          o.textContent =
+            vc.name + " (" + vc.lang + ")" + (vc.default ? " • default" : "");
+          v.appendChild(o);
+        });
+      }
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+      loadVoices();
+      $("#speak").onclick = () => {
+        const u = new SpeechSynthesisUtterance($("#txt").value);
+        const i = Number($("#voice").value) || 0;
+        u.voice = voices[i];
+        u.rate = Number($("#rate").value);
+        u.pitch = Number($("#pitch").value);
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      };
+      $("#stop").onclick = () => speechSynthesis.cancel();
+    </script>
+  </body>
+</html>

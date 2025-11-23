@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CSV Merger • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>CSV Merger</h1>
+      <div class="field">
+        <input id="files" class="input" type="file" accept=".csv" multiple />
+      </div>
+      <div class="row"><button class="btn" id="merge">Merge</button></div>
+      <div class="field" style="margin-top: 12px">
+        <div class="label">Merged CSV</div>
+        <textarea id="out" class="code" style="min-height: 260px"></textarea>
+        <div class="row"><button class="btn ghost" id="copy">Copy</button></div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function parseCSV(text) {
+        const rows = [];
+        let i = 0,
+          cur = "",
+          inQ = false,
+          row = [];
+        function push() {
+          row.push(cur);
+          cur = "";
+        }
+        for (; i < text.length; i++) {
+          const ch = text[i];
+          if (ch === '"') {
+            if (inQ && text[i + 1] === '"') {
+              cur += '"';
+              i++;
+            } else {
+              inQ = !inQ;
+            }
+          } else if (ch === "," && !inQ) {
+            push();
+          } else if ((ch === "\n" || ch === "\r") && !inQ) {
+            push();
+            rows.push(row);
+            row = [];
+            if (ch === "\r" && text[i + 1] === "\n") i++;
+          } else {
+            cur += ch;
+          }
+        }
+        push();
+        if (row.length) rows.push(row);
+        return rows.filter((r) => r.length && !(r.length === 1 && r[0] === ""));
+      }
+      function toCSV(headers, rows) {
+        const esc = (v) => {
+          const s = String(v ?? "");
+          return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        };
+        return [headers.join(",")]
+          .concat(rows.map((r) => headers.map((h) => esc(r[h])).join(",")))
+          .join("\n");
+      }
+      $("#merge").onclick = async () => {
+        const files = $("#files").files;
+        if (!files.length) {
+          toast("Select files");
+          return;
+        }
+        try {
+          let headers = null;
+          const rows = [];
+          for (const f of files) {
+            const text = await f.text();
+            const parsed = parseCSV(text);
+            if (!parsed.length) continue;
+            const h = parsed[0];
+            if (!headers) {
+              headers = h;
+            } else {
+              headers = Array.from(new Set(headers.concat(h)));
+            }
+            for (const r of parsed.slice(1)) {
+              const obj = {};
+              h.forEach((col, idx) => (obj[col] = r[idx] ?? ""));
+              rows.push(obj);
+            }
+          }
+          $("#out").value = toCSV(headers, rows);
+          $("#err").textContent = "";
+        } catch (e) {
+          $("#err").textContent = "Merge failed";
+        }
+      };
+      $("#copy").onclick = () => copyText($("#out"));
+    </script>
+  </body>
+</html>

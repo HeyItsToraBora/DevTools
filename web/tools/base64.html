@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Base64 ⇆ Text • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+        <div class="tools-nav">
+          <a href="/tools/base64.html">Base64</a
+          ><a href="/tools/json.html">JSON</a><a href="/tools/url.html">URL</a>
+        </div>
+      </div>
+      <h1>Base64 ⇆ Text</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Text</div>
+          <textarea id="txt" class="code" placeholder="Type text..."></textarea>
+          <div class="flex">
+            <button class="btn" id="toB64">Encode →</button
+            ><button class="btn ghost" id="copyTxt">Copy</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Base64</div>
+          <textarea
+            id="b64"
+            class="code"
+            placeholder="Type base64..."
+          ></textarea>
+          <div class="flex">
+            <button class="btn" id="toTxt">Decode →</button
+            ><button class="btn ghost" id="copyB64">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const txt = $("#txt"),
+        b64 = $("#b64");
+      $("#toB64").onclick = () => {
+        b64.value = encodeBase64(txt.value);
+      };
+      $("#toTxt").onclick = () => {
+        b64.value = b64.value.trim();
+        txt.value = decodeBase64(b64.value);
+      };
+      $("#copyTxt").onclick = () => copyText(txt);
+      $("#copyB64").onclick = () => copyText(b64);
+    </script>
+  </body>
+</html>

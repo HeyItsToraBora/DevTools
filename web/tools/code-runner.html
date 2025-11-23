@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Online Code Runner • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Online Code Runner</h1>
+      <p class="small">
+        Uses Judge0 API via backend proxy. Set environment variables:
+        <code>JUDGE0_URL</code> (e.g. https://judge0-ce.p.rapidapi.com) and
+        optional <code>JUDGE0_KEY</code>/<code>JUDGE0_HOST</code> for RapidAPI.
+      </p>
+      <div class="two">
+        <div class="field">
+          <div class="label">Language</div>
+          <select id="lang" class="input"></select>
+        </div>
+        <div class="field">
+          <div class="label">Stdin (optional)</div>
+          <textarea
+            id="stdin"
+            class="code"
+            placeholder="Input to program..."
+          ></textarea>
+        </div>
+      </div>
+      <div class="field">
+        <div class="label">Source Code</div>
+        <textarea
+          id="code"
+          class="code"
+          style="min-height: 320px"
+          placeholder="print('hello')"
+        ></textarea>
+      </div>
+      <div class="row"><button class="btn" id="run">Run</button></div>
+      <div class="two" style="margin-top: 12px">
+        <div class="field">
+          <div class="label">Stdout</div>
+          <textarea
+            id="out"
+            class="code"
+            style="min-height: 180px"
+            readonly
+          ></textarea>
+        </div>
+        <div class="field">
+          <div class="label">Stderr / Status</div>
+          <textarea
+            id="err"
+            class="code"
+            style="min-height: 180px"
+            readonly
+          ></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const langs = [
+        { id: 71, name: "Python (3.8.1)", snippet: "print('Hello, DevTools')" },
+        {
+          id: 63,
+          name: "JavaScript (Node.js 12)",
+          snippet: "console.log('Hello, DevTools')",
+        },
+        {
+          id: 95,
+          name: "Go (1.13.5)",
+          snippet:
+            'package main\nimport"fmt"\nfunc main(){fmt.Println("Hello, DevTools")}',
+        },
+        {
+          id: 62,
+          name: "Java (OpenJDK 13.0.1)",
+          snippet:
+            'class Main{public static void main(String[]a){System.out.println("Hello, DevTools");}}',
+        },
+        {
+          id: 54,
+          name: "C++ (G++ 9.2.0)",
+          snippet:
+            '#include <bits/stdc++.h>\nusing namespace std;int main(){cout<<"Hello, DevTools\n";}',
+        },
+        {
+          id: 50,
+          name: "C (GCC 9.2.0)",
+          snippet:
+            '#include <stdio.h>\nint main(){printf("Hello, DevTools\\n");}',
+        },
+        {
+          id: 51,
+          name: "C# (Mono 6.6.0.161)",
+          snippet:
+            'using System;class P{static void Main(){Console.WriteLine("Hello, DevTools");}}',
+        },
+        {
+          id: 68,
+          name: "PHP (7.4.1)",
+          snippet: '<?php echo "Hello, DevTools\n";',
+        },
+        { id: 73, name: "Ruby (2.7.0)", snippet: "puts 'Hello, DevTools'" },
+      ];
+      const sel = $("#lang");
+      langs.forEach((l, i) => {
+        const o = document.createElement("option");
+        o.value = l.id;
+        o.textContent = l.name;
+        sel.appendChild(o);
+      });
+      sel.onchange = () => {
+        $("#code").value = (
+          langs.find((l) => String(l.id) === sel.value) || langs[0]
+        ).snippet;
+      };
+      sel.dispatchEvent(new Event("change"));
+      $("#run").onclick = async () => {
+        try {
+          const payload = {
+            language_id: Number($("#lang").value),
+            source_code: $("#code").value,
+            stdin: $("#stdin").value,
+          };
+          const res = await postJSON("/api/judge0/execute", payload);
+          const s = res.status?.description || "";
+          const out =
+            (res.stdout || "") +
+            (res.compile_output ? "\n[compile]\n" + res.compile_output : "");
+          const err = (res.stderr || "") + (s ? "\n[status] " + s : "");
+          $("#out").value = out;
+          $("#err").value = err;
+        } catch (e) {
+          $("#err").value = e.message;
+        }
+      };
+    </script>
+  </body>
+</html>

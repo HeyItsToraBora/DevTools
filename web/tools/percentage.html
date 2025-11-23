@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Percentage Calculator • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Percentage Calculator</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">A is what % of B?</div>
+          <div class="row">
+            <input
+              id="a"
+              class="input"
+              type="number"
+              placeholder="A"
+              style="max-width: 160px"
+            /><input
+              id="b"
+              class="input"
+              type="number"
+              placeholder="B"
+              style="max-width: 160px"
+            /><button class="btn" id="p1">Calc</button>
+          </div>
+          <div class="small" id="r1"></div>
+        </div>
+        <div class="field">
+          <div class="label">Increase/Decrease by %</div>
+          <div class="row">
+            <input
+              id="x"
+              class="input"
+              type="number"
+              placeholder="Value"
+              style="max-width: 160px"
+            /><input
+              id="p"
+              class="input"
+              type="number"
+              placeholder="%"
+              style="max-width: 160px"
+            /><button class="btn" id="inc">Increase</button
+            ><button class="btn" id="dec">Decrease</button>
+          </div>
+          <div class="small" id="r2"></div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      $("#p1").onclick = () => {
+        $("#r1").textContent =
+          ((Number($("#a").value) / Number($("#b").value)) * 100).toFixed(2) +
+          "%";
+      };
+      $("#inc").onclick = () => {
+        $("#r2").textContent = (
+          Number($("#x").value) *
+          (1 + Number($("#p").value) / 100)
+        ).toString();
+      };
+      $("#dec").onclick = () => {
+        $("#r2").textContent = (
+          Number($("#x").value) *
+          (1 - Number($("#p").value) / 100)
+        ).toString();
+      };
+    </script>
+  </body>
+</html>

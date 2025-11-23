@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Text Obfuscator • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Text Obfuscator</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Input</div>
+          <textarea id="t" class="code"></textarea>
+          <div class="row">
+            <button class="btn" id="rot13">ROT13</button
+            ><button class="btn" id="entities">HTML Entities</button
+            ><button class="btn" id="zwj">Zero-width</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Output</div>
+          <textarea id="o" class="code"></textarea>
+          <div class="row">
+            <button class="btn ghost" id="copy">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function rot13(s) {
+        return s.replace(/[a-zA-Z]/g, (c) =>
+          String.fromCharCode(
+            (c <= "Z" ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26
+          )
+        );
+      }
+      function entities(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+      function zeroWidth(s) {
+        return s.split("").join("\u200b");
+      }
+      $("#rot13").onclick = () => {
+        $("#o").value = rot13($("#t").value);
+      };
+      $("#entities").onclick = () => {
+        $("#o").value = entities($("#t").value);
+      };
+      $("#zwj").onclick = () => {
+        $("#o").value = zeroWidth($("#t").value);
+      };
+      $("#copy").onclick = () => copyText($("#o"));
+    </script>
+  </body>
+</html>

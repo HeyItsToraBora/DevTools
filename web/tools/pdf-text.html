@@ -1,0 +1,58 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PDF → Text Extractor • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+      integrity="sha512-dq5kZQ3l8+0cNw7+5+Qj9gS1y1x7y9Hc8n+0Yq1r6q3L3c4Gkq7uX8G2XJXhWc8Tq6ZrZtU2zQ0Zx5pV3J9Yw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script>
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    </script>
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>PDF → Text Extractor</h1>
+      <div class="field">
+        <input id="file" class="input" type="file" accept="application/pdf" />
+      </div>
+      <div class="field">
+        <div class="label">Text</div>
+        <textarea id="out" class="code" style="min-height: 400px"></textarea>
+        <div class="row"><button class="btn ghost" id="copy">Copy</button></div>
+      </div>
+      <div class="small" id="msg"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      $("#file").onchange = async (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        $("#msg").textContent = "Reading...";
+        const buf = await f.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({
+          data: buf,
+        }).promise;
+        let text = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const t = content.items.map((it) => it.str).join(" ");
+          text += `\n\n--- Page ${i} ---\n\n` + t;
+        }
+        $("#out").value = text.trim();
+        $("#msg").textContent = `Pages: ${pdf.numPages}`;
+      };
+      $("#copy").onclick = () => copyText($("#out"));
+    </script>
+  </body>
+</html>

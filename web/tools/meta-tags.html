@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HTML Meta Tag Generator • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>HTML Meta Tag Generator</h1>
+      <div class="two">
+        <div>
+          <div class="field">
+            <div class="label">Title</div>
+            <input id="title" class="input" />
+          </div>
+          <div class="field">
+            <div class="label">Description</div>
+            <input id="desc" class="input" />
+          </div>
+          <div class="field">
+            <div class="label">URL</div>
+            <input id="url" class="input" />
+          </div>
+          <div class="field">
+            <div class="label">Image</div>
+            <input id="img" class="input" />
+          </div>
+          <div class="field">
+            <div class="label">Site Name</div>
+            <input id="site" class="input" />
+          </div>
+          <div class="row"><button class="btn" id="gen">Generate</button></div>
+        </div>
+        <div>
+          <div class="field">
+            <div class="label">Output</div>
+            <textarea
+              id="out"
+              class="code"
+              style="min-height: 300px"
+            ></textarea>
+            <div class="row">
+              <button class="btn ghost" id="copy">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      $("#gen").onclick = () => {
+        const t = $("#title").value,
+          d = $("#desc").value,
+          u = $("#url").value,
+          i = $("#img").value,
+          s = $("#site").value;
+        const html = `<title>${t}</title>\n<meta name="description" content="${d}">\n<meta property="og:type" content="website">\n<meta property="og:title" content="${t}">\n<meta property="og:description" content="${d}">\n<meta property="og:url" content="${u}">\n<meta property="og:image" content="${i}">\n<meta property="og:site_name" content="${s}">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="${t}">\n<meta name="twitter:description" content="${d}">\n<meta name="twitter:image" content="${i}">`;
+        $("#out").value = html;
+      };
+      $("#copy").onclick = () => copyText($("#out"));
+    </script>
+  </body>
+</html>

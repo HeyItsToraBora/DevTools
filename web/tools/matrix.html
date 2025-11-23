@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Matrix Calculator • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Matrix Calculator</h1>
+      <div class="row">
+        <label class="small">Size</label
+        ><select id="n" class="input" style="max-width: 120px">
+          <option value="2">2x2</option>
+          <option value="3">3x3</option>
+        </select>
+      </div>
+      <div class="two" style="margin-top: 12px">
+        <div class="field">
+          <div class="label">Matrix A</div>
+          <div
+            id="A"
+            class="grid"
+            style="grid-template-columns: repeat(3, 1fr); gap: 8px"
+          ></div>
+        </div>
+        <div class="field">
+          <div class="label">Matrix B</div>
+          <div
+            id="B"
+            class="grid"
+            style="grid-template-columns: repeat(3, 1fr); gap: 8px"
+          ></div>
+        </div>
+      </div>
+      <div class="row" style="margin-top: 12px">
+        <button class="btn" id="add">A + B</button
+        ><button class="btn" id="mul">A × B</button
+        ><button class="btn" id="detA">det(A)</button
+        ><button class="btn" id="invA">A⁻¹</button>
+      </div>
+      <div class="field" style="margin-top: 12px">
+        <div class="label">Result</div>
+        <textarea id="out" class="code" style="min-height: 220px"></textarea>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function build(id, n) {
+        const cont = $(id);
+        cont.innerHTML = "";
+        cont.style.gridTemplateColumns = `repeat(${n},1fr)`;
+        for (let i = 0; i < n * n; i++) {
+          const input = document.createElement("input");
+          input.className = "input";
+          input.type = "number";
+          input.value = "0";
+          cont.appendChild(input);
+        }
+      }
+      function getMatrix(id, n) {
+        const xs = [...$(id).querySelectorAll("input")].map(
+          (i) => Number(i.value) || 0
+        );
+        const m = [];
+        for (let r = 0; r < n; r++) {
+          m.push(xs.slice(r * n, (r + 1) * n));
+        }
+        return m;
+      }
+      function add(A, B) {
+        return A.map((row, i) => row.map((v, j) => v + B[i][j]));
+      }
+      function mul(A, B) {
+        const n = A.length;
+        const C = Array.from({ length: n }, () => Array(n).fill(0));
+        for (let i = 0; i < n; i++)
+          for (let k = 0; k < n; k++)
+            for (let j = 0; j < n; j++) C[i][j] += A[i][k] * B[k][j];
+        return C;
+      }
+      function det2(m) {
+        return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+      }
+      function det3(m) {
+        const a = m;
+        return (
+          a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1]) -
+          a[0][1] * (a[1][0] * a[2][2] - a[1][2] * a[2][0]) +
+          a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0])
+        );
+      }
+      function inv2(m) {
+        const d = det2(m);
+        if (d === 0) throw new Error("singular");
+        return [
+          [m[1][1] / d, -m[0][1] / d],
+          [-m[1][0] / d, m[0][0] / d],
+        ];
+      }
+      function inv3(m) {
+        const d = det3(m);
+        if (d === 0) throw new Error("singular");
+        const a = m;
+        const adj = [
+          [
+            a[1][1] * a[2][2] - a[1][2] * a[2][1],
+            -(a[0][1] * a[2][2] - a[0][2] * a[2][1]),
+            a[0][1] * a[1][2] - a[0][2] * a[1][1],
+          ],
+          [
+            -(a[1][0] * a[2][2] - a[1][2] * a[2][0]),
+            a[0][0] * a[2][2] - a[0][2] * a[2][0],
+            -(a[0][0] * a[1][2] - a[0][2] * a[1][0]),
+          ],
+          [
+            a[1][0] * a[2][1] - a[1][1] * a[2][0],
+            -(a[0][0] * a[2][1] - a[0][1] * a[2][0]),
+            a[0][0] * a[1][1] - a[0][1] * a[1][0],
+          ],
+        ];
+        const inv = [];
+        for (let i = 0; i < 3; i++) {
+          inv[i] = [];
+          for (let j = 0; j < 3; j++) {
+            inv[i][j] = adj[i][j] / d;
+          }
+        }
+        return inv;
+      }
+      function show(M) {
+        $("#out").value = M.map((r) => r.join("\t")).join("\n");
+      }
+      function init() {
+        const n = Number($("#n").value);
+        build("#A", n);
+        build("#B", n);
+      }
+      $("#n").onchange = init;
+      init();
+      $("#add").onclick = () => {
+        const n = Number($("#n").value);
+        show(add(getMatrix("#A", n), getMatrix("#B", n)));
+      };
+      $("#mul").onclick = () => {
+        const n = Number($("#n").value);
+        show(mul(getMatrix("#A", n), getMatrix("#B", n)));
+      };
+      $("#detA").onclick = () => {
+        const n = Number($("#n").value);
+        const A = getMatrix("#A", n);
+        $("#out").value = String(n === 2 ? det2(A) : det3(A));
+      };
+      $("#invA").onclick = () => {
+        const n = Number($("#n").value);
+        const A = getMatrix("#A", n);
+        try {
+          show(n === 2 ? inv2(A) : inv3(A));
+        } catch {
+          toast("Singular matrix");
+        }
+      };
+    </script>
+  </body>
+</html>

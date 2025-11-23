@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Text Diff Checker • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Text Diff Checker</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">A</div>
+          <textarea id="a" class="code"></textarea>
+        </div>
+        <div class="field">
+          <div class="label">B</div>
+          <textarea id="b" class="code"></textarea>
+        </div>
+      </div>
+      <div class="row"><button class="btn" id="run">Diff</button></div>
+      <div class="field">
+        <div class="label">Result</div>
+        <pre id="out" class="code" style="white-space: pre-wrap"></pre>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function lcs(a, b) {
+        const n = a.length,
+          m = b.length,
+          dp = Array(n + 1)
+            .fill(0)
+            .map(() => Array(m + 1).fill(0));
+        for (let i = 1; i <= n; i++)
+          for (let j = 1; j <= m; j++)
+            dp[i][j] =
+              a[i - 1] === b[j - 1]
+                ? dp[i - 1][j - 1] + 1
+                : Math.max(dp[i - 1][j], dp[i][j - 1]);
+        let i = n,
+          j = m,
+          res = [];
+        while (i > 0 && j > 0) {
+          if (a[i - 1] === b[j - 1]) {
+            res.push([" ", a[i - 1]]);
+            i--;
+            j--;
+          } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+            res.push(["-", a[i - 1]]);
+            i--;
+          } else {
+            res.push(["+", b[j - 1]]);
+            j--;
+          }
+        }
+        while (i > 0) {
+          res.push(["-", a[i - 1]]);
+          i--;
+        }
+        while (j > 0) {
+          res.push(["+", b[j - 1]]);
+          j--;
+        }
+        return res.reverse();
+      }
+      $("#run").onclick = () => {
+        const A = $("#a").value.split("\n"),
+          B = $("#b").value.split("\n");
+        const diff = lcs(A, B)
+          .map(([t, l]) => t + (l || ""))
+          .join("\n");
+        $("#out").textContent = diff;
+      };
+    </script>
+  </body>
+</html>

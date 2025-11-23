@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CSS Clip-Path Generator • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>CSS Clip-Path Generator</h1>
+      <div class="two">
+        <div>
+          <div class="field">
+            <div class="label">Shape</div>
+            <select id="shape" class="input">
+              <option value="circle">circle</option>
+              <option value="ellipse">ellipse</option>
+              <option value="inset">inset</option>
+              <option value="polygon">polygon</option>
+            </select>
+          </div>
+          <div id="controls"></div>
+          <div class="field">
+            <div class="label">CSS</div>
+            <input id="css" class="input code" readonly />
+          </div>
+        </div>
+        <div>
+          <div class="label">Preview</div>
+          <div
+            id="box"
+            style="
+              width: 320px;
+              height: 220px;
+              background: linear-gradient(135deg, #60a5fa, #3b82f6);
+              border: 1px solid var(--border);
+              border-radius: 12px;
+            "
+          ></div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const box = $("#box"),
+        css = $("#css"),
+        controls = $("#controls");
+      function update() {
+        const s = $("#shape").value;
+        let v = "";
+        if (s === "circle") {
+          const r = $("#r").value,
+            x = $("#x").value,
+            y = $("#y").value;
+          v = `circle(${r}% at ${x}% ${y}%)`;
+        } else if (s === "ellipse") {
+          const rx = $("#rx").value,
+            ry = $("#ry").value,
+            x = $("#x").value,
+            y = $("#y").value;
+          v = `ellipse(${rx}% ${ry}% at ${x}% ${y}%)`;
+        } else if (s === "inset") {
+          const t = $("#t").value,
+            r = $("#ri").value,
+            b = $("#b").value,
+            l = $("#l").value;
+          v = `inset(${t}% ${r}% ${b}% ${l}%)`;
+        } else {
+          v = $("#poly").value || "polygon(20% 0%, 100% 0, 80% 100%, 0 100%)";
+        }
+        box.style.clipPath = v;
+        css.value = `clip-path: ${v};`;
+      }
+      function render() {
+        const s = $("#shape").value;
+        controls.innerHTML = "";
+        if (s === "circle") {
+          controls.innerHTML = `<div class='row'><label class='small'>Radius (%)</label><input id='r' class='input' type='range' min='0' max='100' value='50'></div><div class='row'><label class='small'>X (%)</label><input id='x' class='input' type='range' min='0' max='100' value='50'></div><div class='row'><label class='small'>Y (%)</label><input id='y' class='input' type='range' min='0' max='100' value='50'></div>`;
+        } else if (s === "ellipse") {
+          controls.innerHTML = `<div class='row'><label class='small'>RX (%)</label><input id='rx' class='input' type='range' min='0' max='100' value='50'></div><div class='row'><label class='small'>RY (%)</label><input id='ry' class='input' type='range' min='0' max='100' value='35'></div><div class='row'><label class='small'>X (%)</label><input id='x' class='input' type='range' min='0' max='100' value='50'></div><div class='row'><label class='small'>Y (%)</label><input id='y' class='input' type='range' min='0' max='100' value='50'></div>`;
+        } else if (s === "inset") {
+          controls.innerHTML = `<div class='row'><label class='small'>Top</label><input id='t' class='input' type='range' min='0' max='100' value='10'></div><div class='row'><label class='small'>Right</label><input id='ri' class='input' type='range' min='0' max='100' value='10'></div><div class='row'><label class='small'>Bottom</label><input id='b' class='input' type='range' min='0' max='100' value='10'></div><div class='row'><label class='small'>Left</label><input id='l' class='input' type='range' min='0' max='100' value='10'></div>`;
+        } else {
+          controls.innerHTML = `<div class='field'><div class='label'>Polygon</div><input id='poly' class='input' value='polygon(20% 0%, 100% 0, 80% 100%, 0 100%)'></div>`;
+        }
+        controls.querySelectorAll("input").forEach((i) => (i.oninput = update));
+        update();
+      }
+      $("#shape").onchange = render;
+      render();
+    </script>
+  </body>
+</html>

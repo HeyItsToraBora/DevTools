@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JSON Formatter • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>JSON Formatter</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Input</div>
+          <textarea id="input" class="code" placeholder='{"a":1}'></textarea>
+          <div class="flex">
+            <button class="btn" id="pretty">Pretty</button
+            ><button class="btn" id="min">Minify</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Output</div>
+          <textarea
+            id="output"
+            class="code"
+            placeholder="Result..."
+            readonly
+          ></textarea>
+          <div class="flex">
+            <button class="btn ghost" id="copy">Copy</button>
+          </div>
+        </div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const input = $("#input"),
+        output = $("#output"),
+        err = $("#err");
+      function fmt(space) {
+        err.textContent = "";
+        try {
+          const obj = JSON.parse(input.value);
+          output.value = JSON.stringify(obj, null, space);
+        } catch (e) {
+          err.textContent = "Invalid JSON";
+        }
+      }
+      $("#pretty").onclick = () => fmt(2);
+      $("#min").onclick = () => fmt(0);
+      $("#copy").onclick = () => copyText(output);
+    </script>
+  </body>
+</html>

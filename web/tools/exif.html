@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Image Metadata (EXIF) Viewer • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Image Metadata (EXIF) Viewer</h1>
+      <div class="field">
+        <input
+          id="file"
+          class="input"
+          type="file"
+          accept="image/jpeg,image/tiff,image/png"
+        />
+      </div>
+      <div class="two">
+        <div class="field">
+          <div class="label">Preview</div>
+          <img
+            id="img"
+            style="
+              max-width: 100%;
+              border: 1px solid var(--border);
+              border-radius: 8px;
+            "
+          />
+        </div>
+        <div class="field">
+          <div class="label">Metadata</div>
+          <textarea
+            id="out"
+            class="code"
+            style="min-height: 340px"
+            readonly
+          ></textarea>
+        </div>
+      </div>
+      <div class="small" id="msg"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function getUint16(d, o, l) {
+        return l ? d[o] | (d[o + 1] << 8) : (d[o] << 8) | d[o + 1];
+      }
+      function getUint32(d, o, l) {
+        return l
+          ? d[o] | (d[o + 1] << 8) | (d[o + 2] << 16) | (d[o + 3] << 24)
+          : ((d[o] << 24) | (d[o + 1] << 16) | (d[o + 2] << 8) | d[o + 3]) >>>
+              0;
+      }
+      function readString(d, o, l) {
+        return new TextDecoder().decode(d.slice(o, o + l));
+      }
+      const TAGS = {
+        0x010f: "Make",
+        0x0110: "Model",
+        0x0112: "Orientation",
+        0x0132: "DateTime",
+        0x829a: "ExposureTime",
+        0x829d: "FNumber",
+        0x8827: "ISOSpeedRatings",
+        0x9003: "DateTimeOriginal",
+        0x920a: "FocalLength",
+        0xa002: "PixelXDimension",
+        0xa003: "PixelYDimension",
+      };
+      const GTAGS = {
+        0x0001: "GPSLatitudeRef",
+        0x0002: "GPSLatitude",
+        0x0003: "GPSLongitudeRef",
+        0x0004: "GPSLongitude",
+      };
+      function parseEXIF(buf) {
+        const d = new DataView(buf);
+        const u = new Uint8Array(buf);
+        let off = 2;
+        if (u[0] !== 0xff || u[1] !== 0xd8) throw new Error("Not JPEG");
+        while (off < u.length) {
+          if (u[off] !== 0xff) break;
+          const marker = u[off + 1];
+          const len = (u[off + 2] << 8) | u[off + 3];
+          if (marker === 0xe1) {
+            const start = off + 4;
+            const id = readString(u, start, 6);
+            if (id.startsWith("Exif")) {
+              const tiff = start + 6;
+              const le = readString(u, tiff, 2) === "II";
+              const ifd0 = getUint32(u, tiff + 4, le) + tiff;
+              const res = {};
+              function readIFD(ptr) {
+                const cnt = getUint16(u, ptr, le);
+                for (let i = 0; i < cnt; i++) {
+                  const e = ptr + 2 + i * 12;
+                  const tag = getUint16(u, e, le);
+                  const type = getUint16(u, e + 2, le);
+                  const num = getUint32(u, e + 4, le);
+                  let valOff = getUint32(u, e + 8, le);
+                  let val;
+                  function readVal(t, n, o) {
+                    if (t === 2) return readString(u, o, n).replace(/\0+$/, "");
+                    if (t === 3) return getUint16(u, o, le);
+                    if (t === 4) return getUint32(u, o, le);
+                    if (t === 5) {
+                      const a = getUint32(u, o, le),
+                        b = getUint32(u, o + 4, le);
+                      return a + "/" + b;
+                    }
+                    if (t === 10) {
+                      const a = getUint32(u, o, le) | 0,
+                        b = getUint32(u, o + 4, le) | 0;
+                      return a + "/" + b;
+                    }
+                    return null;
+                  }
+                  if (type === 2 && num <= 4) {
+                    val = readVal(type, num, e + 8);
+                  } else {
+                    val = readVal(type, num, tiff + valOff);
+                  }
+                  if (TAGS[tag]) res[TAGS[tag]] = val;
+                  if (tag === 0x8769) {
+                    // ExifIFDPointer
+                    const exifIfd = tiff + valOff;
+                    const cnt2 = getUint16(u, exifIfd, le);
+                    for (let j = 0; j < cnt2; j++) {
+                      const ee = exifIfd + 2 + j * 12;
+                      const tg = getUint16(u, ee, le);
+                      const tp = getUint16(u, ee + 2, le);
+                      const nm = getUint32(u, ee + 4, le);
+                      const vo = getUint32(u, ee + 8, le);
+                      const v = readVal(tp, nm, tiff + vo);
+                      if (TAGS[tg]) res[TAGS[tg]] = v;
+                    }
+                  }
+                  if (tag === 0x8825) {
+                    // GPSInfoIFDPointer
+                    const gpsIfd = tiff + valOff;
+                    const cnt3 = getUint16(u, gpsIfd, le);
+                    const gps = {};
+                    for (let k = 0; k < cnt3; k++) {
+                      const ge = gpsIfd + 2 + k * 12;
+                      const tg = getUint16(u, ge, le);
+                      const tp = getUint16(u, ge + 2, le);
+                      const nm = getUint32(u, ge + 4, le);
+                      const vo = getUint32(u, ge + 8, le);
+                      const v = readVal(tp, nm, tiff + vo);
+                      gps[GTAGS[tg] || "0x" + tg.toString(16)] = v;
+                    }
+                    res.GPS = gps;
+                  }
+                }
+                return res;
+              }
+              const meta = readIFD(ifd0);
+              return meta;
+            }
+          }
+          off += 2 + len;
+        }
+        return {};
+      }
+      document.getElementById("file").onchange = async (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const url = URL.createObjectURL(f);
+        $("#img").src = url;
+        $("#msg").textContent = "";
+        try {
+          const buf = await f.arrayBuffer();
+          let meta = {};
+          if (f.type === "image/jpeg" || f.type === "image/tiff") {
+            meta = parseEXIF(buf);
+          } else {
+            $("#msg").textContent = "EXIF primarily supported for JPEG/TIFF";
+          }
+          $("#out").value = JSON.stringify(meta, null, 2);
+        } catch (err) {
+          $("#msg").textContent = "Failed to read EXIF";
+        }
+      };
+    </script>
+  </body>
+</html>

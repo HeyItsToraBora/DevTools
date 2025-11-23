@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JWT • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>JWT Decoder & Signer</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Token</div>
+          <textarea
+            id="tok"
+            class="code"
+            placeholder="header.payload.signature"
+          ></textarea>
+          <div class="row">
+            <input
+              id="secretV"
+              class="input"
+              placeholder="secret for verify"
+              style="max-width: 320px"
+            /><button class="btn" id="decode">Decode</button
+            ><button class="btn" id="verify">Verify HS256</button>
+          </div>
+          <div class="two">
+            <div class="field">
+              <div class="label">Header</div>
+              <textarea id="head" class="code" readonly></textarea>
+            </div>
+            <div class="field">
+              <div class="label">Payload</div>
+              <textarea id="pay" class="code" readonly></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Sign new HS256 token</div>
+          <div class="two">
+            <div class="field">
+              <div class="label">Header (JSON)</div>
+              <textarea id="hIn" class="code">
+{"alg":"HS256","typ":"JWT"}</textarea
+              >
+            </div>
+            <div class="field">
+              <div class="label">Payload (JSON)</div>
+              <textarea id="pIn" class="code">
+{"sub":"123","name":"John"}</textarea
+              >
+            </div>
+          </div>
+          <div class="row">
+            <input
+              id="secret"
+              class="input"
+              placeholder="secret"
+              style="max-width: 320px"
+            /><button class="btn" id="sign">Sign</button>
+          </div>
+          <div class="field">
+            <div class="label">Result</div>
+            <textarea id="res" class="code" readonly></textarea>
+            <div class="row">
+              <button class="btn ghost" id="copy">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const te = new TextEncoder();
+      const td = new TextDecoder();
+      function b64urlEncodeBytes(bytes) {
+        let bin = "";
+        for (let i = 0; i < bytes.length; i++)
+          bin += String.fromCharCode(bytes[i]);
+        return btoa(bin)
+          .replace(/\+/g, "-")
+          .replace(/\//g, "_")
+          .replace(/=+$/, "");
+      }
+      function b64urlDecodeToBytes(s) {
+        s = s.replace(/-/g, "+").replace(/_/g, "/");
+        while (s.length % 4) s += "=";
+        const bin = atob(s);
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+      }
+      async function hmacSHA256(keyBytes, dataBytes) {
+        const key = await crypto.subtle.importKey(
+          "raw",
+          keyBytes,
+          { name: "HMAC", hash: "SHA-256" },
+          false,
+          ["sign"]
+        );
+        const sig = await crypto.subtle.sign("HMAC", key, dataBytes);
+        return new Uint8Array(sig);
+      }
+      function timingSafeEqual(a, b) {
+        if (a.length !== b.length) return false;
+        let v = 0;
+        for (let i = 0; i < a.length; i++)
+          v |= a.charCodeAt(i) ^ b.charCodeAt(i);
+        return v === 0;
+      }
+      const tok = $("#tok"),
+        head = $("#head"),
+        pay = $("#pay"),
+        err = $("#err");
+      $("#decode").onclick = () => {
+        try {
+          const [h, p] = tok.value.trim().split(".");
+          const hObj = JSON.parse(td.decode(b64urlDecodeToBytes(h)));
+          const pObj = JSON.parse(td.decode(b64urlDecodeToBytes(p)));
+          head.value = JSON.stringify(hObj, null, 2);
+          pay.value = JSON.stringify(pObj, null, 2);
+          err.textContent = "";
+        } catch (e) {
+          err.textContent = "Invalid token";
+        }
+      };
+      $("#verify").onclick = async () => {
+        try {
+          const [h, p, s] = tok.value.trim().split(".");
+          if (!h || !p || !s) throw new Error("invalid");
+          const unsigned = h + "." + p;
+          const key = te.encode($("#secretV").value || "");
+          const sig = await hmacSHA256(key, te.encode(unsigned));
+          const expected = b64urlEncodeBytes(sig);
+          const hObj = JSON.parse(td.decode(b64urlDecodeToBytes(h)));
+          const pObj = JSON.parse(td.decode(b64urlDecodeToBytes(p)));
+          head.value = JSON.stringify(hObj, null, 2);
+          pay.value = JSON.stringify(pObj, null, 2);
+          toast(
+            timingSafeEqual(expected, s)
+              ? "Valid signature"
+              : "Invalid signature"
+          );
+          err.textContent = "";
+        } catch (e) {
+          err.textContent = "Verify failed";
+        }
+      };
+      $("#sign").onclick = async () => {
+        err.textContent = "";
+        try {
+          const header = JSON.parse($("#hIn").value);
+          header.alg = "HS256";
+          header.typ = header.typ || "JWT";
+          const payload = JSON.parse($("#pIn").value);
+          const hb = b64urlEncodeBytes(te.encode(JSON.stringify(header)));
+          const pb = b64urlEncodeBytes(te.encode(JSON.stringify(payload)));
+          const unsigned = hb + "." + pb;
+          const key = te.encode($("#secret").value || "");
+          const sig = await hmacSHA256(key, te.encode(unsigned));
+          $("#res").value = unsigned + "." + b64urlEncodeBytes(sig);
+        } catch (e) {
+          err.textContent = "Invalid JSON or sign failed";
+        }
+      };
+      $("#copy").onclick = () => copyText($("#res"));
+    </script>
+  </body>
+</html>

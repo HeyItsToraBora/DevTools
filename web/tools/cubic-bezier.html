@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CSS Cubic Bezier Editor • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>CSS Cubic Bezier Editor</h1>
+      <div class="two">
+        <div>
+          <div class="row">
+            <label class="small">x1</label
+            ><input
+              id="x1"
+              class="input"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.25"
+            />
+          </div>
+          <div class="row">
+            <label class="small">y1</label
+            ><input
+              id="y1"
+              class="input"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.1"
+            />
+          </div>
+          <div class="row">
+            <label class="small">x2</label
+            ><input
+              id="x2"
+              class="input"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.25"
+            />
+          </div>
+          <div class="row">
+            <label class="small">y2</label
+            ><input
+              id="y2"
+              class="input"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value="1"
+            />
+          </div>
+          <div class="field">
+            <div class="label">CSS</div>
+            <input id="css" class="input code" readonly />
+          </div>
+        </div>
+        <div>
+          <div class="label">Preview</div>
+          <div
+            id="box"
+            style="
+              width: 320px;
+              height: 160px;
+              background: var(--panel);
+              border: 1px solid var(--border);
+              border-radius: 12px;
+              position: relative;
+              overflow: hidden;
+            "
+          >
+            <div
+              id="dot"
+              style="
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: var(--primary);
+              "
+            ></div>
+          </div>
+          <div class="row" style="margin-top: 8px">
+            <button class="btn" id="play">Play</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function val() {
+        return [x1.value, y1.value, x2.value, y2.value].map(Number);
+      }
+      function setCSS() {
+        const [a, b, c, d] = val();
+        css.value = `cubic-bezier(${a}, ${b}, ${c}, ${d})`;
+      }
+      function play() {
+        const [a, b, c, d] = val();
+        const box = $("#box"),
+          dot = $("#dot");
+        dot.style.left = "0px";
+        dot.style.top = "0px";
+        dot.style.transition = `transform 800ms cubic-bezier(${a}, ${b}, ${c}, ${d})`;
+        requestAnimationFrame(() => {
+          dot.style.transform = `translate(${box.clientWidth - 20}px, ${
+            box.clientHeight - 20
+          }px)`;
+        });
+        setTimeout(() => {
+          dot.style.transition = "none";
+          dot.style.transform = "translate(0,0)";
+        }, 900);
+      }
+      ["x1", "y1", "x2", "y2"].forEach((id) => ($("#" + id).oninput = setCSS));
+      $("#play").onclick = play;
+      setCSS();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AES Encrypt/Decrypt • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      .tool-aes .two {
+        margin-top: 28px !important;
+        gap: 24px !important;
+      }
+    </style>
+  </head>
+  <body class="tool-aes">
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>AES-GCM Encrypt/Decrypt</h1>
+      <div class="field">
+        <div class="label">Key (base64 of 16/24/32 bytes)</div>
+        <input id="key" class="input" placeholder="base64 key" />
+      </div>
+      <div class="two">
+        <div class="field">
+          <div class="label">Plaintext</div>
+          <textarea id="pt" class="code"></textarea>
+          <div class="row">
+            <input
+              id="aad"
+              class="input"
+              placeholder="Associated Data (optional)"
+              style="max-width: 340px"
+            /><button class="btn" id="enc">Encrypt</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Ciphertext (base64)</div>
+          <textarea id="ct" class="code"></textarea>
+          <div class="row">
+            <input
+              id="nonce"
+              class="input"
+              placeholder="Nonce (base64)"
+              style="max-width: 340px"
+            /><button class="btn" id="dec">Decrypt</button>
+          </div>
+        </div>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const key = $("#key"),
+        pt = $("#pt"),
+        aad = $("#aad"),
+        ct = $("#ct"),
+        nonce = $("#nonce"),
+        err = $("#err");
+      $("#enc").onclick = async () => {
+        err.textContent = "";
+        try {
+          const r = await postJSON("/api/aes/encrypt", {
+            keyBase64: key.value,
+            nonceBase64: nonce.value,
+            plaintext: pt.value,
+            aad: aad.value,
+          });
+          ct.value = r.ciphertextBase64;
+          nonce.value = r.nonceBase64;
+        } catch (e) {
+          err.textContent = e.message;
+        }
+      };
+      $("#dec").onclick = async () => {
+        err.textContent = "";
+        try {
+          const r = await postJSON("/api/aes/decrypt", {
+            keyBase64: key.value,
+            nonceBase64: nonce.value,
+            ciphertextBase64: ct.value,
+            aad: aad.value,
+          });
+          pt.value = r.plaintext;
+        } catch (e) {
+          err.textContent = e.message;
+        }
+      };
+    </script>
+  </body>
+</html>

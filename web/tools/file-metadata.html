@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>File Metadata Extractor • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>File Metadata Extractor</h1>
+      <div class="field"><input id="file" class="input" type="file" /></div>
+      <div class="kv">
+        <div>Name</div>
+        <div id="name"></div>
+        <div>Type</div>
+        <div id="type"></div>
+        <div>Size (bytes)</div>
+        <div id="size"></div>
+        <div>Last Modified</div>
+        <div id="last"></div>
+        <div>SHA-256</div>
+        <div id="sha"></div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      async function sha256(file) {
+        const buf = await file.arrayBuffer();
+        const d = await crypto.subtle.digest("SHA-256", buf);
+        return Array.from(new Uint8Array(d))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+      }
+      $("#file").onchange = async (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        $("#name").textContent = f.name;
+        $("#type").textContent = f.type || "(unknown)";
+        $("#size").textContent = f.size;
+        $("#last").textContent = new Date(f.lastModified).toLocaleString();
+        $("#sha").textContent = "Calculating...";
+        try {
+          $("#sha").textContent = await sha256(f);
+        } catch {
+          $("#sha").textContent = "(failed)";
+        }
+      };
+    </script>
+  </body>
+</html>

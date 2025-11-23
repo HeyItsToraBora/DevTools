@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PDF Viewer • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>PDF Viewer</h1>
+      <div class="field">
+        <input id="file" class="input" type="file" accept="application/pdf" />
+      </div>
+      <div class="field">
+        <div class="label">Preview</div>
+        <iframe
+          id="frame"
+          style="
+            width: 100%;
+            height: 700px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+          "
+        ></iframe>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      $("#file").onchange = (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const url = URL.createObjectURL(f);
+        $("#frame").src = url;
+      };
+    </script>
+  </body>
+</html>

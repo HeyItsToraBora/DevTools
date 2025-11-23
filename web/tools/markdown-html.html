@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Markdown ⇆ HTML • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Markdown ⇆ HTML</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Markdown</div>
+          <textarea
+            id="md"
+            class="code"
+            placeholder="# Title\n**bold** *italic* \n`code` [link](https://)"
+          ></textarea>
+          <div class="row">
+            <button class="btn" id="toHtml">MD → HTML</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">HTML</div>
+          <textarea id="html" class="code"></textarea>
+          <div class="row">
+            <button class="btn" id="toMd">HTML → MD</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function mdToHtml(md) {
+        let h = md;
+        h = h
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        h = h.replace(/^######\s?(.*)$/gim, "<h6>$1</h6>");
+        h = h.replace(/^#####\s?(.*)$/gim, "<h5>$1</h5>");
+        h = h.replace(/^####\s?(.*)$/gim, "<h4>$1</h4>");
+        h = h.replace(/^###\s?(.*)$/gim, "<h3>$1</h3>");
+        h = h.replace(/^##\s?(.*)$/gim, "<h2>$1</h2>");
+        h = h.replace(/^#\s?(.*)$/gim, "<h1>$1</h1>");
+        h = h.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        h = h.replace(/\*(.*?)\*/g, "<em>$1</em>");
+        h = h.replace(/`([^`]+)`/g, "<code>$1</code>");
+        h = h.replace(
+          /\[(.*?)\]\((.*?)\)/g,
+          '<a href="$2" target="_blank" rel="noopener">$1<\/a>'
+        );
+        h = h.replace(/\n\n/g, "</p><p>");
+        return "<p>" + h + "</p>";
+      }
+      function htmlToMd(h) {
+        let s = h;
+        s = s.replace(
+          /<h[1-6]>(.*?)<\/h[1-6]>/g,
+          (m, p) => "#".repeat(Number(m[2])) + " " + p
+        );
+        s = s.replace(/<strong>(.*?)<\/strong>/g, "**$1**");
+        s = s.replace(/<em>(.*?)<\/em>/g, "*$1*");
+        s = s.replace(/<code>(.*?)<\/code>/g, "`$1`");
+        s = s.replace(/<a[^>]*href=\"(.*?)\"[^>]*>(.*?)<\/a>/g, "[$2]($1)");
+        s = s.replace(/<\/p><p>/g, "\n\n").replace(/^<p>|<\/p>$/g, "");
+        return s;
+      }
+      $("#toHtml").onclick = () => {
+        $("#html").value = mdToHtml($("#md").value);
+      };
+      $("#toMd").onclick = () => {
+        $("#md").value = htmlToMd($("#html").value);
+      };
+    </script>
+  </body>
+</html>

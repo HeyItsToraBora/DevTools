@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tailwind Class Merger • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Tailwind Class Merger</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Input classes</div>
+          <textarea
+            id="in"
+            class="code"
+            placeholder="p-2 p-4 text-sm text-base md:p-6"
+          ></textarea>
+        </div>
+        <div class="field">
+          <div class="label">Merged</div>
+          <textarea id="out" class="code" readonly></textarea>
+          <div class="row">
+            <button class="btn ghost" id="copy">Copy</button>
+          </div>
+        </div>
+      </div>
+      <div class="row"><button class="btn" id="run">Merge</button></div>
+      <div class="small">Note: heuristic only, last class wins per group.</div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const groups = [
+        "p",
+        "px",
+        "py",
+        "pt",
+        "pr",
+        "pb",
+        "pl",
+        "m",
+        "mx",
+        "my",
+        "mt",
+        "mr",
+        "mb",
+        "ml",
+        "text",
+        "bg",
+        "border",
+        "rounded",
+        "shadow",
+        "grid-cols",
+        "col-span",
+        "row-span",
+        "w",
+        "h",
+        "min-w",
+        "min-h",
+        "max-w",
+        "max-h",
+        "justify",
+        "items",
+        "content",
+        "place",
+        "flex",
+        "gap",
+        "leading",
+        "tracking",
+      ];
+      function key(c) {
+        const m = c.match(/^(sm:|md:|lg:|xl:|2xl:)?([^\s:]+)/);
+        if (!m) return c;
+        return m[1] || "" + groups.find((g) => m[2].startsWith(g)) || m[2];
+      }
+      $("#run").onclick = () => {
+        const parts = $("#in").value.trim().split(/\s+/);
+        const map = new Map();
+        for (const c of parts) {
+          const k = key(c);
+          map.set(k, c);
+        }
+        $("#out").value = Array.from(map.values()).join(" ");
+      };
+      $("#copy").onclick = () => copyText($("#out"));
+    </script>
+  </body>
+</html>

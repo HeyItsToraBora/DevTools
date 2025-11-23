@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Certificate Decoder • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Certificate / CSR Decoder</h1>
+      <div class="field">
+        <div class="label">PEM</div>
+        <textarea
+          id="pem"
+          class="code"
+          placeholder="-----BEGIN CERTIFICATE-----\n..."
+        ></textarea>
+      </div>
+      <div class="row"><button class="btn" id="dec">Decode</button></div>
+      <div class="field">
+        <div class="label">Result</div>
+        <textarea id="out" class="code" readonly></textarea>
+      </div>
+      <div class="small" id="err"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const pem = $("#pem"),
+        out = $("#out"),
+        err = $("#err");
+      $("#dec").onclick = async () => {
+        err.textContent = "";
+        try {
+          const r = await postJSON("/api/cert/decode", { pem: pem.value });
+          out.value = JSON.stringify(r, null, 2);
+        } catch (e) {
+          err.textContent = e.message;
+        }
+      };
+    </script>
+  </body>
+</html>

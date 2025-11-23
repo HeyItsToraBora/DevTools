@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lorem Ipsum • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Lorem Ipsum Generator</h1>
+      <div class="row">
+        <select id="type" class="input" style="max-width: 200px">
+          <option value="words">Words</option>
+          <option value="sentences">Sentences</option>
+          <option value="paragraphs">Paragraphs</option></select
+        ><input
+          id="count"
+          class="input"
+          style="max-width: 120px"
+          type="number"
+          value="3"
+          min="1"
+          max="50"
+        /><button class="btn" id="gen">Generate</button>
+      </div>
+      <div class="field" style="margin-top: 12px">
+        <div class="label">Output</div>
+        <textarea id="out" class="code"></textarea>
+        <div class="row"><button class="btn ghost" id="copy">Copy</button></div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const wordsStr =
+        "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua".split(
+          " "
+        );
+      function rand(a, b) {
+        return Math.floor(Math.random() * (b - a + 1)) + a;
+      }
+      function cap(s) {
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      }
+      function genWords(n) {
+        const a = [];
+        for (let i = 0; i < n; i++)
+          a.push(wordsStr[rand(0, wordsStr.length - 1)]);
+        return a.join(" ");
+      }
+      function genSentences(n) {
+        const a = [];
+        for (let i = 0; i < n; i++) {
+          const w = rand(6, 16);
+          a.push(cap(genWords(w)) + ".");
+        }
+        return a.join(" ");
+      }
+      function genParas(n) {
+        const a = [];
+        for (let i = 0; i < n; i++) {
+          const s = rand(3, 6);
+          a.push(genSentences(s));
+        }
+        return a.join("\n\n");
+      }
+      $("#gen").onclick = () => {
+        const t = $("#type").value,
+          n = Number($("#count").value) || 1;
+        $("#out").value =
+          t === "words"
+            ? genWords(n)
+            : t === "sentences"
+            ? genSentences(n)
+            : genParas(n);
+      };
+      $("#copy").onclick = () => copyText($("#out"));
+    </script>
+  </body>
+</html>

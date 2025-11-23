@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CSS Gradient Reverse • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>CSS Gradient Reverse</h1>
+      <div class="field">
+        <div class="label">Input gradient</div>
+        <input
+          id="in"
+          class="input"
+          placeholder="linear-gradient(90deg, #000, #fff)"
+        />
+      </div>
+      <div class="row"><button class="btn" id="run">Reverse</button></div>
+      <div class="field">
+        <div class="label">Output</div>
+        <input id="out" class="input code" readonly />
+      </div>
+      <div class="two" style="margin-top: 12px">
+        <div>
+          <div class="label">Original</div>
+          <div
+            id="a"
+            style="
+              width: 100%;
+              height: 120px;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+            "
+          ></div>
+        </div>
+        <div>
+          <div class="label">Reversed</div>
+          <div
+            id="b"
+            style="
+              width: 100%;
+              height: 120px;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+            "
+          ></div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function reverseGradient(g) {
+        try {
+          let m = g.match(/^\s*linear-gradient\(([^,]+),(.*)\)$/i);
+          if (!m) return "";
+          let angle = m[1].trim(),
+            stops = m[2].trim();
+          if (/deg$/.test(angle)) {
+            let v = parseFloat(angle);
+            angle = ((v + 180) % 360) + "deg";
+          } else if (angle.startsWith("to ")) {
+            angle = angle.replace(/to\s+/, "");
+            const map = {
+              left: "right",
+              right: "left",
+              top: "bottom",
+              bottom: "top",
+            };
+            angle = angle
+              .split(/\s+/)
+              .map((x) => map[x] || x)
+              .join(" ");
+            angle = "to " + angle;
+          }
+          let parts = stops
+            .split(/,(?![^()]*\))/)
+            .map((s) => s.trim())
+            .reverse()
+            .map((s) => {
+              let mm = s.match(/(.*?)(\d+)%?$/);
+              if (mm) {
+                let p = parseFloat(mm[2]);
+                p = 100 - p;
+                return mm[1].trim() + " " + p + "%";
+              }
+              return s;
+            });
+          return `linear-gradient(${angle}, ${parts.join(", ")})`;
+        } catch (e) {
+          return "";
+        }
+      }
+      $("#run").onclick = () => {
+        const v = $("#in").value;
+        $("#a").style.background = v;
+        const r = reverseGradient(v);
+        $("#b").style.background = r;
+        $("#out").value = r;
+      };
+    </script>
+  </body>
+</html>

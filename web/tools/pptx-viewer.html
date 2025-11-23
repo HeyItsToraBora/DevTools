@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PPTX Viewer • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+      integrity="sha512-5n+qdv7Q0ZmjtpdQ+xjP4s2cP8+f2d0X1bU3Q7E0R4yJ5ESV7g3J6cjuJbQd5J6hU0kC1Dk4H3QdV1QnkpqH2g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>PPTX Viewer (slides text)</h1>
+      <div class="field">
+        <input
+          id="file"
+          class="input"
+          type="file"
+          accept="application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        />
+      </div>
+      <div class="field">
+        <div class="label">Slides</div>
+        <div
+          id="slides"
+          style="
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+          "
+        ></div>
+      </div>
+      <div class="small" id="msg"></div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function extractText(xml) {
+        const div = document.createElement("div");
+        div.innerHTML = xml;
+        const texts = [...div.querySelectorAll("a\:t, t")]
+          .map((n) => n.textContent)
+          .join(" ");
+        return texts.trim();
+      }
+      $("#file").onchange = async (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        $("#msg").textContent = "Reading...";
+        const buf = await f.arrayBuffer();
+        const zip = await JSZip.loadAsync(buf);
+        const slides = Object.keys(zip.files)
+          .filter((p) => p.startsWith("ppt/slides/slide") && p.endsWith(".xml"))
+          .sort((a, b) => {
+            const na = Number(a.match(/slide(\d+)\.xml/)[1]);
+            const nb = Number(b.match(/slide(\d+)\.xml/)[1]);
+            return na - nb;
+          });
+        const container = $("#slides");
+        container.innerHTML = "";
+        for (const p of slides) {
+          const xml = await zip.files[p].async("string");
+          const text = extractText(xml);
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `<div class='badge'>${
+            p.match(/slide(\d+)/)[1]
+          }</div><div class='title'>Slide</div><div class='desc' style='white-space:pre-wrap'>${
+            text || "(no text found)"
+          }</div>`;
+          container.appendChild(card);
+        }
+        $("#msg").textContent = `Slides: ${slides.length}`;
+      };
+    </script>
+  </body>
+</html>

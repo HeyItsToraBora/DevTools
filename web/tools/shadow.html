@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shadow Generator • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>CSS Box-Shadow Generator</h1>
+      <div class="two">
+        <div>
+          <div class="field">
+            <div class="label">Controls</div>
+            <div class="row">
+              <label class="small">X</label
+              ><input
+                id="x"
+                class="input"
+                type="range"
+                min="-50"
+                max="50"
+                value="10"
+              />
+            </div>
+            <div class="row">
+              <label class="small">Y</label
+              ><input
+                id="y"
+                class="input"
+                type="range"
+                min="-50"
+                max="50"
+                value="10"
+              />
+            </div>
+            <div class="row">
+              <label class="small">Blur</label
+              ><input
+                id="blur"
+                class="input"
+                type="range"
+                min="0"
+                max="100"
+                value="20"
+              />
+            </div>
+            <div class="row">
+              <label class="small">Spread</label
+              ><input
+                id="spread"
+                class="input"
+                type="range"
+                min="-50"
+                max="50"
+                value="0"
+              />
+            </div>
+            <div class="row">
+              <label class="small">Color</label
+              ><input id="color" class="input" type="color" value="#000000" />
+            </div>
+          </div>
+          <div class="field">
+            <div class="label">CSS</div>
+            <input id="css" class="input code" readonly />
+          </div>
+        </div>
+        <div>
+          <div class="label">Preview</div>
+          <div
+            id="box"
+            style="
+              width: 260px;
+              height: 160px;
+              background: var(--panel);
+              border: 1px solid var(--border);
+              border-radius: 12px;
+            "
+          ></div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      function update() {
+        const x = $("#x").value,
+          y = $("#y").value,
+          b = $("#blur").value,
+          s = $("#spread").value,
+          c = $("#color").value;
+        const v = `${x}px ${y}px ${b}px ${s}px ${c}`;
+        $("#box").style.boxShadow = v;
+        $("#css").value = `box-shadow: ${v};`;
+      }
+      ["x", "y", "blur", "spread", "color"].forEach(
+        (id) => ($("#" + id).oninput = update)
+      );
+      update();
+    </script>
+  </body>
+</html>

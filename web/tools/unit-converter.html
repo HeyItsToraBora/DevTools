@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Unit Converter • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>Unit Converter</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Category</div>
+          <select id="cat" class="input"></select>
+        </div>
+        <div class="field">
+          <div class="label">From → To</div>
+          <div class="row">
+            <select id="from" class="input"></select
+            ><select id="to" class="input"></select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <input
+          id="val"
+          class="input"
+          type="number"
+          placeholder="Value"
+          style="max-width: 220px"
+        /><button class="btn" id="conv">Convert</button>
+      </div>
+      <div class="field" style="margin-top: 12px">
+        <div class="label">Result</div>
+        <input id="res" class="input" readonly />
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const cats = {
+        Length: {
+          base: "m",
+          units: {
+            mm: 0.001,
+            cm: 0.01,
+            m: 1,
+            km: 1000,
+            inch: 0.0254,
+            ft: 0.3048,
+            yd: 0.9144,
+            mi: 1609.344,
+          },
+        },
+        Mass: {
+          base: "kg",
+          units: {
+            mg: 1e-6,
+            g: 1e-3,
+            kg: 1,
+            ton: 1000,
+            lb: 0.45359237,
+            oz: 0.0283495231,
+          },
+        },
+        Temperature: { base: "C", units: { C: "C", F: "F", K: "K" } },
+        Volume: {
+          base: "L",
+          units: {
+            ml: 0.001,
+            L: 1,
+            m3: 1000,
+            gal_us: 3.785411784,
+            qt_us: 0.946352946,
+            pt_us: 0.473176473,
+          },
+        },
+        Area: {
+          base: "m2",
+          units: {
+            cm2: 0.0001,
+            m2: 1,
+            km2: 1e6,
+            ft2: 0.09290304,
+            acre: 4046.8564224,
+            hectare: 10000,
+          },
+        },
+        Speed: {
+          base: "mps",
+          units: { mps: 1, kmh: 0.277777778, mph: 0.44704, knot: 0.514444 },
+        },
+        Time: {
+          base: "s",
+          units: {
+            ms: 0.001,
+            s: 1,
+            min: 60,
+            h: 3600,
+            day: 86400,
+            week: 604800,
+          },
+        },
+        Data: {
+          base: "B",
+          units: {
+            B: 1,
+            KB: 1024,
+            MB: 1048576,
+            GB: 1073741824,
+            TB: 1099511627776,
+          },
+        },
+      };
+      function fillCats() {
+        const c = $("#cat");
+        for (const k of Object.keys(cats)) {
+          const o = document.createElement("option");
+          o.value = k;
+          o.textContent = k;
+          c.appendChild(o);
+        }
+        c.onchange = fillUnits;
+        fillUnits();
+      }
+      function fillUnits() {
+        const c = $("#cat").value;
+        const us = Object.keys(cats[c].units);
+        const f = $("#from"),
+          t = $("#to");
+        f.innerHTML = "";
+        t.innerHTML = "";
+        us.forEach((u) => {
+          const o = document.createElement("option");
+          o.value = u;
+          o.textContent = u;
+          f.appendChild(o.cloneNode(true));
+          t.appendChild(o);
+        });
+      }
+      function convert() {
+        const cat = $("#cat").value;
+        const v = Number($("#val").value);
+        if (!isFinite(v)) return;
+        const from = $("#from").value,
+          to = $("#to").value;
+        if (cat === "Temperature") {
+          let C;
+          if (from === "C") C = v;
+          else if (from === "F") C = ((v - 32) * 5) / 9;
+          else C = v - 273.15;
+          let out;
+          if (to === "C") out = C;
+          else if (to === "F") out = (C * 9) / 5 + 32;
+          else out = C + 273.15;
+          $("#res").value = String(out);
+          return;
+        }
+        const f = cats[cat].units[from],
+          tt = cats[cat].units[to];
+        const base = v * f;
+        const out = base / tt;
+        $("#res").value = String(out);
+      }
+      $("#conv").onclick = convert;
+      fillCats();
+    </script>
+  </body>
+</html>

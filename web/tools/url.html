@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>URL Encoder/Decoder • DevTools</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="container page">
+      <div class="header">
+        <a class="brand" href="/"><span class="dot"></span> DevTools</a>
+      </div>
+      <h1>URL Encoder/Decoder</h1>
+      <div class="two">
+        <div class="field">
+          <div class="label">Text</div>
+          <textarea id="txt" class="code"></textarea>
+          <div class="flex">
+            <button class="btn" id="enc">Encode</button
+            ><button class="btn" id="dec">Decode</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label">Result</div>
+          <textarea id="res" class="code"></textarea>
+          <div class="flex">
+            <button class="btn ghost" id="copy">Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="toast"></div>
+    <script src="/app.js"></script>
+    <script>
+      const t = $("#txt"),
+        r = $("#res");
+      $("#enc").onclick = () => {
+        r.value = encodeURIComponent(t.value);
+      };
+      $("#dec").onclick = () => {
+        try {
+          r.value = decodeURIComponent(t.value);
+        } catch {
+          r.value = "";
+        }
+      };
+      $("#copy").onclick = () => copyText(r);
+    </script>
+  </body>
+</html>
