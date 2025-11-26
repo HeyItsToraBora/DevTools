@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>JWT • DevTools</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css?v=jwt1" />
   </head>
   <body>
     <div class="container page">
@@ -29,7 +29,7 @@
             /><button class="btn" id="decode">Decode</button
             ><button class="btn" id="verify">Verify HS256</button>
           </div>
-          <div class="two">
+          <div class="two" class="jwt-decoders">
             <div class="field">
               <div class="label">Header</div>
               <textarea id="head" class="code" readonly></textarea>
@@ -40,23 +40,23 @@
             </div>
           </div>
         </div>
-        <div class="field">
-          <div class="label">Sign new HS256 token</div>
-          <div class="two">
+        <div class="field jwt-signer">
+          <div class="label upp">Sign new HS256 token</div>
+          <div class="two ttwwoo">
             <div class="field">
               <div class="label">Header (JSON)</div>
               <textarea id="hIn" class="code">
-{"alg":"HS256","typ":"JWT"}</textarea
+              {"alg":"HS256","typ":"JWT"}</textarea
               >
             </div>
             <div class="field">
               <div class="label">Payload (JSON)</div>
               <textarea id="pIn" class="code">
-{"sub":"123","name":"John"}</textarea
+              {"sub":"123","name":"John"}</textarea
               >
             </div>
           </div>
-          <div class="row">
+          <div class="row sigg">
             <input
               id="secret"
               class="input"
@@ -64,7 +64,7 @@
               style="max-width: 320px"
             /><button class="btn" id="sign">Sign</button>
           </div>
-          <div class="field">
+          <div class="field resss">
             <div class="label">Result</div>
             <textarea id="res" class="code" readonly></textarea>
             <div class="row">

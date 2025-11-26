@@ -12,7 +12,14 @@
         <a class="brand" href="/"><span class="dot"></span> DevTools</a>
       </div>
       <h1>File Metadata Extractor</h1>
-      <div class="field"><input id="file" class="input" type="file" /></div>
+      <div class="field" style="margin-bottom: 20px">
+        <div class="label">Choose a file</div>
+        <div class="row">
+          <label for="file" class="btn primary">Browse file</label>
+          <span id="fileName" class="small">No file selected</span>
+        </div>
+        <input id="file" type="file" style="display: none" />
+      </div>
       <div class="kv">
         <div>Name</div>
         <div id="name"></div>
@@ -36,9 +43,12 @@
           .map((b) => b.toString(16).padStart(2, "0"))
           .join("");
       }
-      $("#file").onchange = async (e) => {
+      const fileInput = $("#file");
+      const fileNameEl = $("#fileName");
+      fileInput.onchange = async (e) => {
         const f = e.target.files[0];
         if (!f) return;
+        if (fileNameEl) fileNameEl.textContent = f.name;
         $("#name").textContent = f.name;
         $("#type").textContent = f.type || "(unknown)";
         $("#size").textContent = f.size;

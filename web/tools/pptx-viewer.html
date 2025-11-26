@@ -19,11 +19,16 @@
       </div>
       <h1>PPTX Viewer (slides text)</h1>
       <div class="field">
+        <div class="label">Choose a PPTX file</div>
+        <div class="row">
+          <label for="file" class="btn primary">Browse file</label>
+          <span id="fileName" class="small">No file selected</span>
+        </div>
         <input
           id="file"
-          class="input"
           type="file"
           accept="application/vnd.openxmlformats-officedocument.presentationml.presentation"
+          style="display: none"
         />
       </div>
       <div class="field">
@@ -50,9 +55,12 @@
           .join(" ");
         return texts.trim();
       }
-      $("#file").onchange = async (e) => {
+      const fileInput = $("#file");
+      const fileNameEl = $("#fileName");
+      fileInput.onchange = async (e) => {
         const f = e.target.files[0];
         if (!f) return;
+        if (fileNameEl) fileNameEl.textContent = f.name;
         $("#msg").textContent = "Reading...";
         const buf = await f.arrayBuffer();
         const zip = await JSZip.loadAsync(buf);

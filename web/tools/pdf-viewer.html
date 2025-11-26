@@ -13,7 +13,12 @@
       </div>
       <h1>PDF Viewer</h1>
       <div class="field">
-        <input id="file" class="input" type="file" accept="application/pdf" />
+        <div class="label">Choose a PDF</div>
+        <div class="row">
+          <label for="file" class="btn primary">Browse file</label>
+          <span id="fileName" class="small">No file selected</span>
+        </div>
+        <input id="file" type="file" accept="application/pdf" style="display: none" />
       </div>
       <div class="field">
         <div class="label">Preview</div>
@@ -32,9 +37,12 @@
     <div class="toast"></div>
     <script src="/app.js"></script>
     <script>
-      $("#file").onchange = (e) => {
+      const fileInput = $("#file");
+      const fileNameEl = $("#fileName");
+      fileInput.onchange = (e) => {
         const f = e.target.files[0];
         if (!f) return;
+        if (fileNameEl) fileNameEl.textContent = f.name;
         const url = URL.createObjectURL(f);
         $("#frame").src = url;
       };

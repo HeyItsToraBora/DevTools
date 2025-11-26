@@ -15,7 +15,7 @@
 html,body{height:100%}
 body{
   margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  background:linear-gradient(180deg,var(--bg),#0b1220 60%);
+  background-color: var(--bg);
   color:var(--text);
 }
 .container{max-width:1200px;margin:0 auto;padding:24px}
@@ -45,13 +45,76 @@ body{
 .field + .field{margin-top:12px}
 .two > .field + .field{margin-top:0 !important}
 .tool-bcrypt .field + .field{margin-top:16px}
-@media(max-width:800px){.two{grid-template-columns:1fr}}
-@media(max-width:800px){.two > .field + .field{margin-top:12px !important}}
+.tool-simple .field + .two{margin-top:16px !important}
+@keyframes btnPulse{0%{transform:scale(1)}50%{transform:scale(.97)}100%{transform:scale(1)}}
+.btn.pulse{animation:btnPulse .25s ease}
+.kv{display:grid;grid-template-columns:220px 1fr;gap:8px}
+.kv div{padding:8px;background:var(--bg-elev);border:1px solid var(--border);border-radius:8px}
+.flex{display:flex;gap:10px;align-items:center}
+.small{font-size:12px;color:var(--muted)}
+.flags-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px}
+.flag-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:999px;border:1px solid var(--border);background:#020617;cursor:pointer;user-select:none}
+.flag-pill input{margin:0;appearance:none;width:0;height:0;opacity:0}
+.flag-pill span{font-size:11px;letter-spacing:0.03em;text-transform:uppercase;color:var(--muted)}
+.flag-pill:has(input:checked){
+  background:linear-gradient(180deg,var(--primary),var(--primary-600));
+  border-color:var(--primary-600);
+}
+.flag-pill:has(input:checked) span{color:#020617;font-weight:600}
+.code{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;}
+.badge{font-size:11px;padding:3px 8px;border:1px solid var(--border);background:#0e1523;border-radius:100px;color:var(--muted)}
+.toast{position:fixed;bottom:24px;right:24px;background:#0b1322;border:1px solid var(--border);padding:10px 14px;border-radius:10px;opacity:0;transform:translateY(8px);transition:all .2s}
+.toast.show{opacity:1;transform:none}
+.toast.info{background:#0b1322;border-color:#1d4ed8}
+.toast.success{background:#0f1a14;border-color:#14532d}
+.toast.warning{background:#1a1508;border-color:#92400e}
+.toast.error{background:#1a0d0d;border-color:#7f1d1d}
+.hr{height:1px;background:var(--border);margin:12px 0}
+.tools-nav{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
+.tools-nav a{border:1px solid var(--border);background:#0b1322;color:var(--text);padding:8px 10px;border-radius:10px;text-decoration:none;font-size:13px}
+.page{max-width:1000px;margin:0 auto}
+
+.jwt-decoders{margin-top:-16px}
+
+.jwt-signer > .two{
+  margin-top:-24px;
+}
+
+.jwt-signer > .row{
+  margin-top:24px;
+}
+
+.upp {   position: relative;
+  top: -24px; 
+}
+.resss{
+position: relative;
+  top: 8px; 
+}
+.ttwwoo{
+  position: relative;
+  top: -4px; 
+}
+.gg{
+  position: relative;
+  top: 14px; 
+}
+.sigg{
+position: relative;
+  top: -24px; 
+}
+
+.sss{
+  margin-top:16px;
+}
+.nooon{
+  margin-top:16px;
+}
 .input, textarea, select{background:var(--bg-elev);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;width:100%}
 /* hide number input spinners */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button{ -webkit-appearance: none; margin:0 }
-input[type=number]{ -moz-appearance: textfield }
+input[type=number]{ -moz-appearance: textfield; appearance: textfield }
 /* password visibility toggle */
 .pwd-wrap{position:relative;display:inline-flex;width:100%}
 .pwd-wrap .input{padding-right:36px}
@@ -81,6 +144,16 @@ textarea{min-height:160px;resize:vertical}
 .kv div{padding:8px;background:var(--bg-elev);border:1px solid var(--border);border-radius:8px}
 .flex{display:flex;gap:10px;align-items:center}
 .small{font-size:12px;color:var(--muted)}
+.qr-img{background:#fff;padding:8px;border-radius:10px;border:1px solid var(--border);max-width:256px;box-shadow:0 6px 18px rgba(15,23,42,0.55)}
+.color-picker{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elev);transition:border-color .15s ease, box-shadow .15s ease, background-color .15s ease}
+.color-picker:hover{border-color:var(--primary-600);background:#111827;box-shadow:0 0 0 1px rgba(37,99,235,0.35)}
+.color-input{appearance:none;border-radius:999px;overflow:hidden;border:1px solid var(--border);width:32px;height:32px;padding:0;cursor:pointer;background:transparent}
+.color-input:focus-visible{outline:2px solid var(--primary-600);outline-offset:2px}
+.color-input::-webkit-color-swatch-wrapper{padding:0}
+.color-input::-webkit-color-swatch{border:0}
+.color-input::-moz-color-swatch{border:0}
+.palette-strip{display:flex;overflow:hidden;border-radius:10px;border:1px solid var(--border);background:var(--bg-elev);min-height:32px}
+.palette-swatch{flex:1;min-width:0;min-height:32px}
 .code{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;}
 .badge{font-size:11px;padding:3px 8px;border:1px solid var(--border);background:#0e1523;border-radius:100px;color:var(--muted)}
 .toast{position:fixed;bottom:24px;right:24px;background:#0b1322;border:1px solid var(--border);padding:10px 14px;border-radius:10px;opacity:0;transform:translateY(8px);transition:all .2s}

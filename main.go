@@ -18,6 +18,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,6 +30,15 @@ import (
 
 type apiError struct {
 	Error string `json:"error"`
+}
+
+// ttsRequest represents a text-to-speech request body.
+type ttsRequest struct {
+	Text      string  `json:"text"`
+	VoiceName string  `json:"voiceName"`
+	VoiceLang string  `json:"voiceLang"`
+	Rate      float64 `json:"rate"`
+	Pitch     float64 `json:"pitch"`
 }
 
 func judge0ExecuteHandler(w http.ResponseWriter, r *http.Request) {
@@ -426,6 +436,60 @@ func certDecodeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ttsHandler proxies text-to-speech requests to an external TTS service
+// configured via the TTS_URL environment variable. It expects JSON
+// {"text":"...","voiceName":"...","voiceLang":"...","rate":1,"pitch":1}
+// and streams back the audio bytes returned by the upstream service.
+func ttsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	base := os.Getenv("TTS_URL")
+	if base == "" {
+		writeJSON(w, http.StatusBadRequest, apiError{Error: "TTS not configured"})
+		return
+	}
+	var reqBody ttsRequest
+	if err := readJSON(r, &reqBody); err != nil {
+		writeJSON(w, http.StatusBadRequest, apiError{Error: "invalid json"})
+		return
+	}
+	if strings.TrimSpace(reqBody.Text) == "" {
+		writeJSON(w, http.StatusBadRequest, apiError{Error: "text is required"})
+		return
+	}
+	body, _ := json.Marshal(reqBody)
+	outReq, err := http.NewRequest(http.MethodPost, base, bytes.NewReader(body))
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, apiError{Error: "tts request error"})
+		return
+	}
+	outReq.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(outReq)
+	if err != nil {
+		writeJSON(w, http.StatusBadGateway, apiError{Error: "tts unreachable"})
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(resp.StatusCode)
+		io.Copy(w, resp.Body)
+		return
+	}
+	// Proxy audio bytes through, preserving content type when possible.
+	ct := resp.Header.Get("Content-Type")
+	if ct == "" {
+		ct = "audio/mpeg"
+	}
+	w.Header().Set("Content-Type", ct)
+	// Suggest a filename so browsers treat it as downloadable.
+	w.Header().Set("Content-Disposition", "attachment; filename=tts-audio")
+	w.WriteHeader(http.StatusOK)
+	io.Copy(w, resp.Body)
+}
+
 func withJSON(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodOptions {
@@ -440,6 +504,36 @@ func withJSON(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// iconsHandler handles requests to list available SVG icons
+func iconsHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	iconDir := filepath.Join("web", "assets", "SVG icons")
+	matches, err := filepath.Glob(filepath.Join(iconDir, "*.svg"))
+	if err != nil {
+		http.Error(w, "Error reading icons directory", http.StatusInternalServerError)
+		return
+	}
+
+	// Convert full paths to relative paths from the assets directory
+	icons := make([]string, 0, len(matches))
+	for _, match := range matches {
+		// Convert to forward slashes for web compatibility
+		relPath, err := filepath.Rel(filepath.Join("web", "assets"), match)
+		if err != nil {
+			continue
+		}
+		icons = append(icons, filepath.ToSlash(relPath))
+	}
+
+	writeJSON(w, http.StatusOK, map[string]interface{}{
+		"icons": icons,
+	})
+}
+
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/hash", withJSON(hashHandler))
@@ -451,6 +545,13 @@ func main() {
 	mux.HandleFunc("/api/bcrypt/hash", withJSON(bcryptHashHandler))
 	mux.HandleFunc("/api/bcrypt/compare", withJSON(bcryptCompareHandler))
 	mux.HandleFunc("/api/judge0/execute", withJSON(judge0ExecuteHandler))
+	mux.HandleFunc("/api/icons", withJSON(iconsHandler))
+	mux.HandleFunc("/api/tts", withJSON(ttsHandler))
+	// Serve app.js with no-cache to ensure fresh JS across all pages
+	mux.HandleFunc("/app.js", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store, max-age=0, must-revalidate")
+		http.ServeFile(w, r, filepath.Join("web", "app.js"))
+	})
 	fs := http.FileServer(http.Dir("web"))
 	mux.Handle("/", spaHandler("web", fs))
 	port := os.Getenv("PORT")
@@ -470,13 +571,24 @@ func main() {
 func spaHandler(root string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		p := r.URL.Path
+		if up, err := url.PathUnescape(p); err == nil {
+			p = up
+		}
 		if p == "/" {
 			next.ServeHTTP(w, r)
 			return
 		}
-		full := filepath.Join(root, filepath.Clean(p))
+		rel := strings.TrimPrefix(p, "/")
+		full := filepath.Join(root, filepath.FromSlash(filepath.Clean(rel)))
 		if st, err := os.Stat(full); err == nil && !st.IsDir() {
-			next.ServeHTTP(w, r)
+			// Pass through to file server but ensure URL path is unescaped so http.FileServer can resolve it
+			r2 := new(http.Request)
+			*r2 = *r
+			u := new(url.URL)
+			*u = *r.URL
+			u.Path = p
+			r2.URL = u
+			next.ServeHTTP(w, r2)
 			return
 		}
 		http.ServeFile(w, r, filepath.Join(root, "index.html"))

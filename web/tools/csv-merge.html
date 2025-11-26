@@ -13,7 +13,12 @@
       </div>
       <h1>CSV Merger</h1>
       <div class="field">
-        <input id="files" class="input" type="file" accept=".csv" multiple />
+        <div class="label">Choose CSV files</div>
+        <div class="row">
+          <label for="files" class="btn primary">Browse files</label>
+          <span id="filesName" class="small">No files selected</span>
+        </div>
+        <input id="files" type="file" accept=".csv" multiple style="display: none" />
       </div>
       <div class="row"><button class="btn" id="merge">Merge</button></div>
       <div class="field" style="margin-top: 12px">
@@ -69,8 +74,23 @@
           .concat(rows.map((r) => headers.map((h) => esc(r[h])).join(",")))
           .join("\n");
       }
+      const filesInput = $("#files");
+      const filesNameEl = $("#filesName");
+      if (filesInput && filesNameEl) {
+        filesInput.onchange = (e) => {
+          const list = e.target.files || [];
+          if (!list.length) {
+            filesNameEl.textContent = "No files selected";
+          } else if (list.length === 1) {
+            filesNameEl.textContent = list[0].name;
+          } else {
+            filesNameEl.textContent = `${list.length} files selected`;
+          }
+        };
+      }
+
       $("#merge").onclick = async () => {
-        const files = $("#files").files;
+        const files = filesInput.files;
         if (!files.length) {
           toast("Select files");
           return;

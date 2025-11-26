@@ -12,8 +12,22 @@
         <a class="brand" href="/"><span class="dot"></span> DevTools</a>
       </div>
       <h1>Color Palette Generator</h1>
-      <div class="row"><button class="btn" id="gen">Generate</button></div>
-      <div class="grid" id="grid" style="margin-top: 12px"></div>
+      <div class="row"><button class="btn" id="gen">Generate random palette</button></div>
+      <div class="field" style="margin-top: 12px">
+        <div class="label">Choose a color to create a palette from</div>
+        <div class="row">
+          <div class="color-picker">
+            <input id="baseColor" type="color" value="#60a5fa" class="color-input" />
+            <span id="baseColorHex" class="small">#60a5fa</span>
+          </div>
+          <button class="btn" id="genFromColor">Generate from color</button>
+        </div>
+      </div>
+      <div class="field" style="margin-top: 16px">
+        <div class="label">Palette preview</div>
+        <div class="palette-strip" id="strip"></div>
+      </div>
+      <div class="grid" id="grid" style="margin-top: 16px"></div>
     </div>
     <div class="toast"></div>
     <script src="/app.js"></script>
@@ -37,10 +51,44 @@
           Math.round(255 * f(4)),
         ];
       }
-      function gen() {
+      function hexToRgb(hex) {
+        if (!hex || typeof hex !== "string") return null;
+        let h = hex.trim();
+        if (h[0] === "#") h = h.slice(1);
+        if (h.length === 3) {
+          h = h.split("").map((c) => c + c).join("");
+        }
+        if (h.length !== 6) return null;
+        const r = parseInt(h.slice(0, 2), 16);
+        const g = parseInt(h.slice(2, 4), 16);
+        const b = parseInt(h.slice(4, 6), 16);
+        if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return null;
+        return [r, g, b];
+      }
+
+      function rgbToHue(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        const d = max - min;
+        if (d === 0) return 0;
+        let h;
+        if (max === r) h = ((g - b) / d) % 6;
+        else if (max === g) h = (b - r) / d + 2;
+        else h = (r - g) / d + 4;
+        h *= 60;
+        if (h < 0) h += 360;
+        return h;
+      }
+
+      function gen(baseHueOverride) {
         const g = $("#grid");
+        const strip = $("#strip");
         g.innerHTML = "";
-        const baseHue = Math.floor(Math.random() * 360);
+        if (strip) strip.innerHTML = "";
+        const baseHue =
+          typeof baseHueOverride === "number" && !Number.isNaN(baseHueOverride)
+            ? baseHueOverride
+            : Math.floor(Math.random() * 360);
         const modes = [
           [0, 30, 60, 90, 120],
           [0, 15, 30, 45, 60],
@@ -48,20 +96,54 @@
           [0, 120, 240, 300, 60],
         ];
         const m = modes[Math.floor(Math.random() * modes.length)];
+        const colors = [];
         for (const off of m) {
           const [r, gc, b] = hslToRgb((baseHue + off) % 360, 60, 55);
           const hex = "#" + toHex(r) + toHex(gc) + toHex(b);
+          colors.push(hex);
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `<div class="title">${hex}</div><div class="desc">rgb(${r}, ${gc}, ${b})</div>`;
+          const luminance = (0.299 * r + 0.587 * gc + 0.114 * b) / 255;
+          card.style.backgroundColor = hex;
+          card.style.color = luminance > 0.6 ? "#020617" : "#f9fafb";
+          card.style.borderColor = "rgba(15,23,42,0.65)";
           card.onclick = () => {
             navigator.clipboard.writeText(hex);
             toast("Copied " + hex);
           };
           g.appendChild(card);
         }
+        if (strip && colors.length) {
+          for (const hex of colors) {
+            const sw = document.createElement("div");
+            sw.className = "palette-swatch";
+            sw.style.backgroundColor = hex;
+            strip.appendChild(sw);
+          }
+        }
       }
-      $("#gen").onclick = gen;
+      const baseInput = $("#baseColor");
+      const baseHexEl = $("#baseColorHex");
+      if (baseInput && baseHexEl) {
+        baseInput.oninput = () => {
+          baseHexEl.textContent = baseInput.value.toLowerCase();
+        };
+      }
+
+      $("#gen").onclick = () => gen();
+      $("#genFromColor").onclick = () => {
+        const input = baseInput || $("#baseColor");
+        const val = input && input.value ? input.value : "#60a5fa";
+        const rgb = hexToRgb(val);
+        if (!rgb) {
+          gen();
+          return;
+        }
+        const [r, g, b] = rgb;
+        const h = rgbToHue(r, g, b);
+        gen(h);
+      };
       gen();
     </script>
   </body>

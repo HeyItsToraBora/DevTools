@@ -22,7 +22,12 @@
       </div>
       <h1>PDF → Text Extractor</h1>
       <div class="field">
-        <input id="file" class="input" type="file" accept="application/pdf" />
+        <div class="label">Choose a PDF</div>
+        <div class="row">
+          <label for="file" class="btn primary">Browse file</label>
+          <span id="fileName" class="small">No file selected</span>
+        </div>
+        <input id="file" type="file" accept="application/pdf" style="display: none" />
       </div>
       <div class="field">
         <div class="label">Text</div>
@@ -34,9 +39,12 @@
     <div class="toast"></div>
     <script src="/app.js"></script>
     <script>
-      $("#file").onchange = async (e) => {
+      const fileInput = $("#file");
+      const fileNameEl = $("#fileName");
+      fileInput.onchange = async (e) => {
         const f = e.target.files[0];
         if (!f) return;
+        if (fileNameEl) fileNameEl.textContent = f.name;
         $("#msg").textContent = "Reading...";
         const buf = await f.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({

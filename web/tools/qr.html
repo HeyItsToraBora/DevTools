@@ -15,40 +15,36 @@
       <div class="two">
         <div>
           <div class="field">
-            <div class="label">Text</div>
+            <div class="label">Text to encode</div>
             <textarea id="txt" class="code"></textarea>
           </div>
-          <div class="row"><button class="btn" id="gen">Generate</button></div>
+          <div class="row">
+            <div class="field" style="max-width: 220px">
+              <div class="label">QR style</div>
+              <select id="qrStyle" class="input">
+                <option value="classic" selected>Classic (black on white)</option>
+                <option value="dark">Dark (light on dark)</option>
+                <option value="accent">Accent (primary background)</option>
+              </select>
+            </div>
+            <button class="btn gg" id="gen">Generate QR</button>
+          </div>
           <div class="field">
-            <div class="label">QR</div>
-            <img
-              id="qr"
-              style="
-                background: #fff;
-                padding: 8px;
-                border-radius: 8px;
-                max-width: 256px;
-              "
-            />
+            <div class="label">Generated QR</div>
+            <img id="qr" class="qr-img" />
           </div>
         </div>
         <div>
           <div class="field">
-            <div class="label">Scan (camera)</div>
-            <video
-              id="vid"
-              autoplay
-              playsinline
-              style="
-                max-width: 100%;
-                border: 1px solid var(--border);
-                border-radius: 8px;
-              "
-            ></video>
+            <div class="label">Scan from image</div>
+            <div class="row">
+              <label for="qrFile" class="btn primary">Browse image…</label>
+              <span id="qrFileName" class="small">No file selected</span>
+            </div>
+            <input id="qrFile" type="file" accept="image/*" style="display:none" />
           </div>
           <div class="row">
-            <button class="btn" id="start">Start</button
-            ><button class="btn ghost" id="stop">Stop</button>
+            <button class="btn" id="decode">Decode QR</button>
           </div>
           <div class="field">
             <div class="label">Result</div>
@@ -60,46 +56,66 @@
     <div class="toast"></div>
     <script src="/app.js"></script>
     <script>
-      // Generator via public API fallback
+      // Generate QR using public API
       $("#gen").onclick = () => {
-        const t = encodeURIComponent($("#txt").value);
-        $(
-          "#qr"
-        ).src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${t}`;
-      };
-      // Scanner with BarcodeDetector if available
-      let stream, detector;
-      async function tick() {
-        if (!detector || !stream) return;
-        const v = $("#vid");
-        try {
-          const codes = await detector.detect(v);
-          if (codes.length) {
-            $("#res").value = codes[0].rawValue;
-            toast("QR detected");
-          }
-        } catch {}
-        requestAnimationFrame(tick);
-      }
-      $("#start").onclick = async () => {
-        try {
-          stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "environment" },
-          });
-          $("#vid").srcObject = stream;
-          if ("BarcodeDetector" in window) {
-            detector = new BarcodeDetector({ formats: ["qr_code"] });
-            tick();
-          } else {
-            toast("BarcodeDetector not supported");
-          }
-        } catch (e) {
-          toast("Camera error");
+        const t = encodeURIComponent($("#txt").value || "");
+        const styleSel = $("#qrStyle");
+        const style = styleSel ? styleSel.value : "classic";
+        let color = "000000";
+        let bgcolor = "ffffff";
+        if (style === "dark") {
+          color = "f9fafb"; // light text
+          bgcolor = "020617"; // near-black bg
+        } else if (style === "accent") {
+          color = "020617"; // dark text
+          bgcolor = "60a5fa"; // primary blue
         }
+        const url = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=${color}&bgcolor=${bgcolor}&data=${t}`;
+        $("#qr").src = url;
       };
-      $("#stop").onclick = () => {
-        if (stream) stream.getTracks().forEach((t) => t.stop());
-        stream = null;
+
+      // Decode QR from uploaded image using public API
+      const qrFileInput = $("#qrFile");
+      const qrFileName = $("#qrFileName");
+      if (qrFileInput && qrFileName) {
+        qrFileInput.onchange = (e) => {
+          const f = e.target.files && e.target.files[0];
+          qrFileName.textContent = f ? f.name : "No file selected";
+        };
+      }
+
+      $("#decode").onclick = async () => {
+        const fileInput = qrFileInput || $("#qrFile");
+        const file = fileInput && fileInput.files && fileInput.files[0];
+        if (!file) {
+          toast("Choose an image with a QR code first");
+          return;
+        }
+        const fd = new FormData();
+        fd.append("file", file);
+        try {
+          const res = await fetch("https://api.qrserver.com/v1/read-qr-code/", {
+            method: "POST",
+            body: fd,
+          });
+          if (!res.ok) {
+            toast("Decode failed");
+            return;
+          }
+          const data = await res.json();
+          const value =
+            data && data[0] && data[0].symbol && data[0].symbol[0]
+              ? data[0].symbol[0].data
+              : null;
+          if (!value) {
+            toast("No QR code found in image");
+            return;
+          }
+          $("#res").value = value;
+          toast("QR decoded");
+        } catch (e) {
+          toast("Error decoding QR");
+        }
       };
     </script>
   </body>

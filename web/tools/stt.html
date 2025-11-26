@@ -12,15 +12,23 @@
         <a class="brand" href="/"><span class="dot"></span> DevTools</a>
       </div>
       <h1>Speech → Text</h1>
-      <div class="row">
+      <div class="field">
+        <div class="label">Audio file</div>
+        <div class="row">
+          <label for="file" class="btn primary">Browse audio</label>
+          <span id="fileName" class="small">No file selected</span>
+        </div>
+        <input id="file" type="file" accept="audio/*" style="display: none" />
+      </div>
+      <div class="row" style="margin-top: 12px">
         <select id="lang" class="input" style="max-width: 220px">
           <option value="en-US">English (US)</option>
           <option value="en-GB">English (UK)</option>
           <option value="ar-SA">Arabic (Saudi Arabia)</option>
           <option value="fr-FR">French</option>
-          <option value="de-DE">German</option></select
-        ><button class="btn" id="start">Start</button
-        ><button class="btn ghost" id="stop">Stop</button>
+          <option value="de-DE">German</option>
+        </select>
+        <button class="btn" id="transcribe">Transcribe</button>
       </div>
       <div class="field" style="margin-top: 12px">
         <div class="label">Transcript</div>
@@ -35,32 +43,48 @@
     <div class="toast"></div>
     <script src="/app.js"></script>
     <script>
-      const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-      let rec;
-      $("#start").onclick = () => {
-        if (!Rec) {
-          $("#msg").textContent =
-            "This browser does not support Web Speech API";
+      const fileInput = $("#file");
+      const fileNameEl = $("#fileName");
+      const msg = $("#msg");
+
+      if (fileInput && fileNameEl) {
+        fileInput.onchange = (e) => {
+          const f = e.target.files && e.target.files[0];
+          fileNameEl.textContent = f ? f.name : "No file selected";
+        };
+      }
+
+      $("#transcribe").onclick = async () => {
+        const inp = fileInput || $("#file");
+        const f = inp && inp.files && inp.files[0];
+        if (!f) {
+          toast("Choose an audio file first");
           return;
         }
-        rec = new Rec();
-        rec.lang = $("#lang").value;
-        rec.continuous = true;
-        rec.interimResults = true;
-        rec.onresult = (e) => {
-          let s = "";
-          for (let i = e.resultIndex; i < e.results.length; i++) {
-            s += e.results[i][0].transcript;
+        const langSel = $("#lang");
+        const lang = langSel ? langSel.value || "en-US" : "en-US";
+        const fd = new FormData();
+        fd.append("file", f);
+        fd.append("lang", lang);
+        msg.textContent = "Transcribing...";
+        try {
+          const res = await fetch("/api/stt", { method: "POST", body: fd });
+          if (!res.ok) {
+            msg.textContent = "Transcription failed";
+            return;
           }
-          $("#out").value = s;
-        };
-        rec.onerror = (e) => ($("#msg").textContent = "Error: " + e.error);
-        rec.onend = () => toast("Stopped");
-        rec.start();
-        toast("Recording...");
-      };
-      $("#stop").onclick = () => {
-        if (rec) rec.stop();
+          const data = await res.json().catch(() => null);
+          const text =
+            data && (data.text || data.transcript || data.result || "");
+          if (!text) {
+            msg.textContent = "No transcript returned";
+            return;
+          }
+          $("#out").value = text;
+          msg.textContent = "Done";
+        } catch (e) {
+          msg.textContent = "Error while transcribing";
+        }
       };
     </script>
   </body>
